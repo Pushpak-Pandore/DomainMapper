@@ -156,7 +156,7 @@ const ScanDurationTracker = ({ scanId, startTime, endTime, status, currentStep, 
           className="mt-3 p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800"
         >
           <div className="flex items-center space-x-2 text-xs">
-            <TrendingUpIcon className="h-4 w-4 text-green-600" />
+            <ArrowTrendingUpIcon className="h-4 w-4 text-green-600" />
             <span className="text-green-700 dark:text-green-300">
               Performance: {duration < 60 ? 'Excellent' : duration < 300 ? 'Good' : 'Normal'}
             </span>
