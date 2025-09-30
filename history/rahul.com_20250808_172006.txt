@@ -1,0 +1,4 @@
+ftp.rahul.com
+mail.rahul.com
+rahul.com
+www.rahul.com
