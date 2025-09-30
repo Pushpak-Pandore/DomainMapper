@@ -1,7 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Settings as SettingsIcon, AlertCircle } from 'lucide-react';
+import { 
+  Play, 
+  Settings as SettingsIcon, 
+  AlertCircle,
+  DocumentDuplicateIcon,
+  ClockIcon,
+  SaveIcon,
+  RefreshCwIcon
+} from 'lucide-react';
+import { motion } from 'framer-motion';
 import api from '../services/api';
+import useAutoSave from '../hooks/useAutoSave';
+import { useRecentDomains } from '../components/RecentDomains';
+import RecentDomainsSuggestions from '../components/RecentDomains';
+import { HelpTooltip, InfoTooltip, WarningTooltip } from '../components/Tooltip';
+import toast from 'react-hot-toast';
 
 const NewScan = () => {
   const navigate = useNavigate();
