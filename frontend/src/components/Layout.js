@@ -15,9 +15,13 @@ import { useWebSocketContext } from '../providers/WebSocketProvider';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumb from './Breadcrumb';
+import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  
+  // Initialize keyboard shortcuts globally
+  useKeyboardShortcuts();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { connectionStatus, isConnected } = useWebSocketContext();
   const { theme } = useTheme();
