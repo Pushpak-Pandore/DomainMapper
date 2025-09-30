@@ -167,22 +167,29 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
         if request.mode in ["passive", "both"] and not request.enable_modern_enum:
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 20, "current_step": "passive enumeration"}}
+                {"$set": {"progress": 40, "current_step": "passive enumeration"}}
             )
+            await manager.send_scan_progress(scan_id, 40, "Passive enumeration", 0)
             
             passive_results = passive_enum(domain, request.sources)
             all_subdomains.extend(passive_results)
             scan_data['passive_count'] = len(passive_results)
             
+            # Send real-time subdomain discoveries
             for sub in passive_results:
                 scan_data['sources'][sub] = 'passive'
+                await manager.send_subdomain_discovered(scan_id, sub, 'passive')
+                await asyncio.sleep(0.01)
+            
+            await manager.send_scan_progress(scan_id, 50, f"Passive enumeration complete", len(passive_results))
         
         # Active enumeration (traditional)
         if request.mode in ["active", "both"] and request.wordlist and not request.enable_modern_enum:
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 40, "current_step": "active enumeration"}}
+                {"$set": {"progress": 60, "current_step": "active enumeration"}}
             )
+            await manager.send_scan_progress(scan_id, 60, "Active enumeration", 0)
             
             # Get best wordlist if not specified
             if not request.wordlist:
@@ -193,9 +200,14 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
             all_subdomains.extend(active_results)
             scan_data['active_count'] = len(active_results)
             
+            # Send real-time subdomain discoveries
             for sub in active_results:
                 if sub not in scan_data['sources']:
                     scan_data['sources'][sub] = 'active'
+                    await manager.send_subdomain_discovered(scan_id, sub, 'active')
+                    await asyncio.sleep(0.01)
+            
+            await manager.send_scan_progress(scan_id, 70, f"Active enumeration complete", len(active_results))
         
         # Deduplicate
         all_subdomains = deduplicate_subdomains(all_subdomains)
