@@ -81,7 +81,9 @@ const generateMockAnalyticsData = (range) => {
 const AdvancedAnalyticsDashboard = () => {
   const [timeRange, setTimeRange] = useState('7d');
   const [chartType, setChartType] = useState('area');
-  const { isConnected, connectionStatus } = useWebSocketContext();
+  // WebSocket connection status - with null safety
+  const webSocketContext = useWebSocketContext();
+  const { isConnected, connectionStatus } = webSocketContext || { isConnected: false, connectionStatus: 'disconnected' };
 
   // Fetch analytics data
   const { data: analyticsData, isLoading, error, refetch } = useQuery({
