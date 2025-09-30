@@ -1,6 +1,5 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -16,11 +15,21 @@ const queryClient = new QueryClient({
   },
 });
 
+// Conditionally load ReactQueryDevtools
+let ReactQueryDevtools = null;
+if (process.env.NODE_ENV === 'development') {
+  import('@tanstack/react-query-devtools').then((module) => {
+    ReactQueryDevtools = module.ReactQueryDevtools;
+  });
+}
+
 export const ReactQueryProvider = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+      {process.env.NODE_ENV === 'development' && ReactQueryDevtools && (
+        <ReactQueryDevtools />
+      )}
     </QueryClientProvider>
   );
 };
