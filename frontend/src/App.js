@@ -15,42 +15,59 @@ import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 
 function App() {
+  // Initialize keyboard shortcuts globally
+  useKeyboardShortcuts();
+
   return (
-    <ReactQueryProvider>
-      <WebSocketProvider>
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/new-scan" element={<NewScan />} />
-              <Route path="/scan/:scanId" element={<ScanDetails />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </Layout>
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
-                style: {
-                  background: '#10B981',
-                },
-              },
-              error: {
-                style: {
-                  background: '#EF4444',
-                },
-              },
-            }}
-          />
-        </Router>
-      </WebSocketProvider>
-    </ReactQueryProvider>
+    <ThemeProvider>
+      <DashboardProvider>
+        <ReactQueryProvider>
+          <WebSocketProvider>
+            <Router>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/new-scan" element={<NewScan />} />
+                  <Route path="/scan/:scanId" element={<ScanDetails />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </Layout>
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: 'var(--toast-bg)',
+                    color: 'var(--toast-color)',
+                    border: '1px solid var(--toast-border)',
+                  },
+                  success: {
+                    style: {
+                      background: '#10B981',
+                      color: '#ffffff',
+                    },
+                  },
+                  error: {
+                    style: {
+                      background: '#EF4444',
+                      color: '#ffffff',
+                    },
+                  },
+                  loading: {
+                    style: {
+                      background: '#3B82F6',
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              />
+              <KeyboardShortcutsHelp />
+            </Router>
+          </WebSocketProvider>
+        </ReactQueryProvider>
+      </DashboardProvider>
+    </ThemeProvider>
   );
 }
 
