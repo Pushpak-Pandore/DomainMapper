@@ -18,9 +18,9 @@ import {
   DocumentDuplicateIcon,
   EyeIcon,
   EyeSlashIcon,
-  Bars3Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import { Bars3Icon } from '@heroicons/react/24/solid';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
