@@ -273,7 +273,7 @@ const AdvancedAnalyticsDashboard = () => {
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             {chartType === 'area' && (
-              <AreaChart data={analyticsData?.scanHistory ?? []}>
+              <AreaChart data={analyticsData?.scan_history ?? []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
@@ -294,22 +294,32 @@ const AdvancedAnalyticsDashboard = () => {
                   fillOpacity={0.6}
                   name="Scans"
                 />
+                <Area
+                  type="monotone"
+                  dataKey="completed_scans"
+                  stackId="2"
+                  stroke="#10B981"
+                  fill="#10B981"
+                  fillOpacity={0.6}
+                  name="Completed"
+                />
               </AreaChart>
             )}
             
             {chartType === 'bar' && (
-              <BarChart data={analyticsData?.scanHistory ?? []}>
+              <BarChart data={analyticsData?.scan_history ?? []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="scans" fill="#3B82F6" name="Scans" />
+                <Bar dataKey="scans" fill="#3B82F6" name="Total Scans" />
+                <Bar dataKey="completed_scans" fill="#10B981" name="Completed" />
               </BarChart>
             )}
             
             {chartType === 'line' && (
-              <LineChart data={analyticsData.scanHistory}>
+              <LineChart data={analyticsData?.scan_history ?? []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
@@ -320,7 +330,14 @@ const AdvancedAnalyticsDashboard = () => {
                   dataKey="scans"
                   stroke="#3B82F6"
                   strokeWidth={2}
-                  name="Scans"
+                  name="Total Scans"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="completed_scans"
+                  stroke="#10B981"
+                  strokeWidth={2}
+                  name="Completed"
                 />
               </LineChart>
             )}
