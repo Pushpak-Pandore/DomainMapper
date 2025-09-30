@@ -138,14 +138,14 @@ const Layout = ({ children }) => {
       </header>
 
       {/* Desktop Header */}
-      <header className="hidden lg:block bg-white shadow-sm border-b border-gray-200">
+      <header className="hidden lg:block bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between items-center">
             <div className="flex items-center">
               <Shield className="h-8 w-8 text-blue-600" />
               <div className="ml-3">
-                <h1 className="text-xl font-bold text-gray-900">DomainMapper Pro</h1>
-                <p className="text-sm text-gray-500">Advanced Subdomain Enumeration</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">DomainMapper Pro</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Advanced Subdomain Enumeration</p>
               </div>
             </div>
             
@@ -153,11 +153,14 @@ const Layout = ({ children }) => {
               <div className="flex items-center space-x-2">
                 <Activity className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
                 <span className={`text-sm font-medium ${
-                  isConnected ? 'text-green-700' : 'text-red-700'
+                  isConnected ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'
                 }`}>
                   {connectionStatus}
                 </span>
               </div>
+              
+              {/* Theme Toggle */}
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -165,7 +168,7 @@ const Layout = ({ children }) => {
 
       <div className="flex">
         {/* Desktop Sidebar */}
-        <nav className="hidden lg:block w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
+        <nav className="hidden lg:block w-64 bg-white dark:bg-gray-800 shadow-sm min-h-screen border-r border-gray-200 dark:border-gray-700">
           <div className="p-4 space-y-1">
             {navigation.map((item) => {
               const Icon = item.icon;
@@ -177,11 +180,11 @@ const Layout = ({ children }) => {
                   to={item.href}
                   className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <Icon className={`mr-3 h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
                   {item.name}
                 </Link>
               );
@@ -190,30 +193,10 @@ const Layout = ({ children }) => {
         </nav>
 
         {/* Main content */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8">
-          {/* Breadcrumb for mobile */}
-          <div className="lg:hidden mb-4">
-            <nav className="flex" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-3">
-                <li className="inline-flex items-center">
-                  <Link to="/" className="text-gray-500 hover:text-gray-700">
-                    <Home className="h-4 w-4" />
-                  </Link>
-                </li>
-                {currentPage && currentPage.href !== '/' && (
-                  <li>
-                    <div className="flex items-center">
-                      <svg className="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                      </svg>
-                      <span className="text-gray-500 ml-1 md:ml-2 text-sm font-medium">
-                        {currentPage.name}
-                      </span>
-                    </div>
-                  </li>
-                )}
-              </ol>
-            </nav>
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 bg-gray-50 dark:bg-gray-900">
+          {/* Enhanced Breadcrumb */}
+          <div className="mb-6">
+            <Breadcrumb />
           </div>
           
           {children}
