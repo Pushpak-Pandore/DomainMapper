@@ -120,6 +120,13 @@ export const WebSocketProvider = ({ children }) => {
           window.dispatchEvent(new CustomEvent('dashboardUpdate'));
           break;
 
+        case 'analytics_update':
+          // Trigger analytics refresh
+          window.dispatchEvent(new CustomEvent('analyticsUpdate', {
+            detail: lastJsonMessage
+          }));
+          break;
+
         case 'subscription_confirmed':
           console.log(`Subscribed to scan: ${scan_id}`);
           break;
