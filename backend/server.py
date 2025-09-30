@@ -101,13 +101,14 @@ class ScheduledScanRequest(BaseModel):
 # ==================== HELPER FUNCTIONS ====================
 
 async def run_scan_task(scan_id: str, request: ScanRequest):
-    """Background task to run subdomain enumeration scan"""
+    """Background task to run subdomain enumeration scan with real-time WebSocket updates"""
     try:
-        # Update status to running
+        # Update status to running and send WebSocket notification
         await db.scans.update_one(
             {"_id": scan_id},
             {"$set": {"status": "running", "progress": 0}}
         )
+        await manager.send_scan_progress(scan_id, 0, "Starting scan", 0)
         
         domain = sanitize_domain(request.domain)
         all_subdomains = []
@@ -128,6 +129,7 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
                 {"_id": scan_id},
                 {"$set": {"progress": 10, "current_step": "modern enumeration"}}
             )
+            await manager.send_scan_progress(scan_id, 10, "Modern enumeration", 0)
             
             try:
                 enumerator = ModernEnumerator()
@@ -148,12 +150,18 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
                 scan_data['vulnerabilities'] = modern_results['vulnerabilities']
                 scan_data['tool_results'] = modern_results.get('tool_results', {})
                 
+                # Send real-time subdomain discoveries
                 for sub in modern_subdomains:
                     scan_data['sources'][sub] = 'modern'
+                    await manager.send_subdomain_discovered(scan_id, sub, 'modern')
+                    await asyncio.sleep(0.01)  # Small delay to prevent overwhelming
+                    
+                await manager.send_scan_progress(scan_id, 30, f"Modern enumeration complete", len(modern_subdomains))
                     
             except Exception as e:
                 # Log error but continue with traditional methods
                 print(f"Modern enumeration error: {e}")
+                await manager.send_scan_progress(scan_id, 30, f"Modern enumeration failed: {str(e)}", 0)
         
         # Passive enumeration (traditional)
         if request.mode in ["passive", "both"] and not request.enable_modern_enum:
