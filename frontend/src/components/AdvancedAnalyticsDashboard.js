@@ -211,7 +211,7 @@ const AdvancedAnalyticsDashboard = () => {
                 <div className={`flex items-center mt-2 text-sm ${
                   stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  <TrendingUpIcon className="h-4 w-4 mr-1" />
+                  <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
                   {stat.change}
                 </div>
               </div>
