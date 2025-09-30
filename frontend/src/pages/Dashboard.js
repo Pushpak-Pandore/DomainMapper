@@ -197,7 +197,11 @@ const Dashboard = () => {
                       <Eye className="h-4 w-4" />
                     </Link>
                     {scan.status === 'completed' && (
-                      <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                      <button 
+                        onClick={() => downloadReport(scan._id, scan.domain)}
+                        className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                        title="Download Report"
+                      >
                         <Download className="h-4 w-4" />
                       </button>
                     )}
