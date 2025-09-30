@@ -5,135 +5,146 @@ import toast from 'react-hot-toast';
 const useKeyboardShortcuts = () => {
   const navigate = useNavigate();
 
+  const shortcuts = {
+    // Navigation shortcuts
+    'ctrl+shift+d': () => {
+      navigate('/');
+      toast.success('Navigated to Dashboard', { duration: 2000 });
+    },
+    'ctrl+shift+n': () => {
+      navigate('/new-scan');
+      toast.success('Navigated to New Scan', { duration: 2000 });
+    },
+    'ctrl+shift+a': () => {
+      navigate('/analytics');
+      toast.success('Navigated to Analytics', { duration: 2000 });
+    },
+    'ctrl+shift+s': () => {
+      navigate('/settings');
+      toast.success('Navigated to Settings', { duration: 2000 });
+    },
+    
+    // Utility shortcuts
+    'f5': () => {
+      window.location.reload();
+    },
+    'ctrl+shift+r': () => {
+      window.location.reload();
+    },
+    'escape': () => {
+      // Close modals, clear selections, etc.
+      const event = new CustomEvent('escape-pressed');
+      window.dispatchEvent(event);
+    },
+    
+    // Search and filter shortcuts
+    'ctrl+k': (e) => {
+      e.preventDefault();
+      const searchInput = document.querySelector('input[type="text"], input[placeholder*="search" i], input[placeholder*="filter" i]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+        toast.success('Search focused', { duration: 1500 });
+      }
+    },
+    
+    // Export shortcuts
+    'ctrl+e': () => {
+      const event = new CustomEvent('export-data');
+      window.dispatchEvent(event);
+      toast.success('Exporting data...', { duration: 2000 });
+    },
+    
+    // Theme toggle
+    'ctrl+shift+t': () => {
+      const event = new CustomEvent('toggle-theme');
+      window.dispatchEvent(event);
+    },
+    
+    // Help shortcut
+    'shift+?': () => {
+      const event = new CustomEvent('show-shortcuts');
+      window.dispatchEvent(event);
+    },
+    
+    // Quick actions
+    'alt+1': () => navigate('/'),
+    'alt+2': () => navigate('/new-scan'),
+    'alt+3': () => navigate('/analytics'),
+    'alt+4': () => navigate('/settings')
+  };
+
+  const getKeyString = (event) => {
+    const parts = [];
+    if (event.ctrlKey) parts.push('ctrl');
+    if (event.altKey) parts.push('alt');
+    if (event.shiftKey) parts.push('shift');
+    if (event.metaKey) parts.push('meta');
+    
+    // Handle special keys
+    if (event.key === 'Escape') parts.push('escape');
+    else if (event.key === 'F5') parts.push('f5');
+    else if (event.key === '?') parts.push('?');
+    else parts.push(event.key.toLowerCase());
+    
+    return parts.join('+');
+  };
+
   const handleKeyDown = useCallback((event) => {
-    // Prevent shortcuts when typing in form fields
+    // Don't trigger shortcuts when typing in inputs (except for specific shortcuts)
     if (
       event.target.tagName === 'INPUT' ||
       event.target.tagName === 'TEXTAREA' ||
-      event.target.isContentEditable
+      event.target.contentEditable === 'true'
     ) {
-      return;
+      // Allow certain shortcuts even in input fields
+      const allowedInInputs = ['escape', 'f5', 'ctrl+shift+r'];
+      const keyString = getKeyString(event);
+      if (!allowedInInputs.includes(keyString)) {
+        return;
+      }
     }
 
-    // Handle different key combinations
-    if (event.ctrlKey || event.metaKey) {
-      switch (event.key.toLowerCase()) {
-        case 'n':
-          event.preventDefault();
-          navigate('/new-scan');
-          toast.success('⌨️ Opening New Scan');
-          break;
-        case 'd':
-          event.preventDefault();
-          navigate('/');
-          toast.success('⌨️ Opening Dashboard');
-          break;
-        case 'a':
-          event.preventDefault();
-          navigate('/analytics');
-          toast.success('⌨️ Opening Analytics');
-          break;
-        case 's':
-          event.preventDefault();
-          navigate('/settings');
-          toast.success('⌨️ Opening Settings');
-          break;
-        case 'k':
-          event.preventDefault();
-          // Focus on search input if available
-          const searchInput = document.querySelector('input[placeholder*="Search"], input[placeholder*="search"]');
-          if (searchInput) {
-            searchInput.focus();
-            toast.success('⌨️ Search activated');
-          }
-          break;
-        case 'e':
-          event.preventDefault();
-          // Trigger export if available
-          const exportButton = document.querySelector('button:contains("Export"), [aria-label*="export"], [title*="Export"]');
-          if (exportButton) {
-            exportButton.click();
-            toast.success('⌨️ Export triggered');
-          }
-          break;
-        default:
-          break;
-      }
-    } else {
-      // Handle single key shortcuts
-      switch (event.key) {
-        case 'Escape':
-          // Close modals, clear filters, etc.
-          event.preventDefault();
-          // Close any open modals
-          const modalCloseButton = document.querySelector('[aria-label="Close"], button[aria-label*="close"]');
-          if (modalCloseButton) {
-            modalCloseButton.click();
-          }
-          // Clear global search if available
-          const globalSearchInput = document.querySelector('input[placeholder*="Search all"]');
-          if (globalSearchInput && globalSearchInput.value) {
-            globalSearchInput.value = '';
-            globalSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
-            toast.success('⌨️ Cleared search');
-          }
-          break;
-        case 'F5':
-        case 'r':
-          if (event.ctrlKey || event.metaKey) {
-            // Let browser handle refresh
-            return;
-          }
-          // Custom refresh action
-          event.preventDefault();
-          window.location.reload();
-          break;
-        case '?':
-          event.preventDefault();
-          showKeyboardShortcutsHelp();
-          break;
-        default:
-          break;
-      }
+    const keyString = getKeyString(event);
+    const shortcut = shortcuts[keyString];
+    
+    if (shortcut) {
+      event.preventDefault();
+      shortcut(event);
     }
   }, [navigate]);
 
-  const showKeyboardShortcutsHelp = () => {
-    toast(
-      <div className="text-sm">
-        <div className="font-semibold mb-2">⌨️ Keyboard Shortcuts</div>
-        <div className="space-y-1 text-xs">
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+N</kbd> New Scan</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+D</kbd> Dashboard</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+A</kbd> Analytics</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+S</kbd> Settings</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+K</kbd> Search</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Ctrl+E</kbd> Export</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">Esc</kbd> Close/Clear</div>
-          <div><kbd className="bg-gray-200 px-1 rounded">?</kbd> Show help</div>
-        </div>
-      </div>,
-      {
-        duration: 6000,
-        position: 'top-center',
-        style: {
-          background: '#f8fafc',
-          color: '#1f2937',
-          border: '1px solid #e5e7eb',
-        },
-      }
-    );
-  };
-
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Cleanup
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown]);
 
   return {
-    showKeyboardShortcutsHelp,
+    shortcuts: Object.keys(shortcuts),
+    getShortcutDescription: (key) => {
+      const descriptions = {
+        'ctrl+shift+d': 'Navigate to Dashboard',
+        'ctrl+shift+n': 'Navigate to New Scan',
+        'ctrl+shift+a': 'Navigate to Analytics',
+        'ctrl+shift+s': 'Navigate to Settings',
+        'f5': 'Refresh page',
+        'ctrl+shift+r': 'Force refresh',
+        'escape': 'Close modals/clear selections',
+        'ctrl+k': 'Focus search',
+        'ctrl+e': 'Export data',
+        'ctrl+shift+t': 'Toggle theme',
+        'shift+?': 'Show shortcuts help',
+        'alt+1': 'Dashboard',
+        'alt+2': 'New Scan',
+        'alt+3': 'Analytics',
+        'alt+4': 'Settings'
+      };
+      return descriptions[key] || 'Unknown shortcut';
+    }
   };
 };
 
