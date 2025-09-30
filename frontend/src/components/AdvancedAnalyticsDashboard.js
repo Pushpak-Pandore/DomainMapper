@@ -82,14 +82,21 @@ const AdvancedAnalyticsDashboard = () => {
   const [chartType, setChartType] = useState('area');
 
   // Fetch analytics data
-  const { data: analyticsData, isLoading } = useQuery({
+  const { data: analyticsData, isLoading, error, refetch } = useQuery({
     queryKey: ['analytics', timeRange],
     queryFn: async () => {
-      // Simulate analytics data - in real app, this would fetch from backend
-      const mockData = generateMockAnalyticsData(timeRange);
-      return mockData;
+      try {
+        const response = await api.get(`/api/analytics?time_range=${timeRange}`);
+        return response.data;
+      } catch (error) {
+        console.error('Analytics API error:', error);
+        // Fallback to mock data if API fails
+        return generateMockAnalyticsData(timeRange);
+      }
     },
-    staleTime: 60000 // 1 minute
+    staleTime: 60000, // 1 minute
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    retry: 3
   });
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'];
