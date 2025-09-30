@@ -260,7 +260,7 @@ const AdvancedAnalyticsDashboard = () => {
             )}
             
             {chartType === 'bar' && (
-              <BarChart data={analyticsData.scanHistory}>
+              <BarChart data={analyticsData?.scanHistory ?? []}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
