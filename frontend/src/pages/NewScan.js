@@ -170,19 +170,77 @@ const NewScan = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">New Subdomain Scan</h1>
-        <p className="text-gray-600">Configure and start a new subdomain enumeration scan</p>
+      {/* Header with Auto-save Indicator */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">New Subdomain Scan</h1>
+          <p className="text-gray-600">Configure and start a new subdomain enumeration scan</p>
+        </div>
+        
+        <div className="flex items-center space-x-3 mt-4 sm:mt-0">
+          {/* Auto-save Status */}
+          <div className="flex items-center space-x-2">
+            {isSaving ? (
+              <div className="flex items-center text-blue-600">
+                <RefreshCwIcon className="h-4 w-4 animate-spin mr-1" />
+                <span className="text-sm">Saving...</span>
+              </div>
+            ) : lastSaved ? (
+              <div className="flex items-center text-green-600">
+                <SaveIcon className="h-4 w-4 mr-1" />
+                <span className="text-sm">Auto-saved {Math.floor((Date.now() - lastSaved) / 1000)}s ago</span>
+              </div>
+            ) : null}
+          </div>
+          
+          <button
+            onClick={clearForm}
+            className="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Clear form
+          </button>
+        </div>
       </div>
 
+      {/* Recent Domains Suggestions */}
+      <RecentDomainsSuggestions 
+        onSelectDomain={handleDomainSelect}
+        className="mb-6"
+      />
+
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Progress Indicator while loading */}
+        {loading && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+                <span className="text-blue-800 font-medium">Starting scan for {formData.domain}...</span>
+              </div>
+              <div className="text-blue-600 font-mono">
+                {formatDuration(duration)}
+              </div>
+            </div>
+            <div className="mt-2 text-sm text-blue-600">
+              Estimated completion time: ~{Math.ceil(getEstimatedDuration() / 60)} minutes
+            </div>
+          </motion.div>
+        )}
+
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center"
+          >
             <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
             <span className="text-red-700">{error}</span>
-          </div>
+          </motion.div>
         )}
 
         {/* Basic Configuration */}
