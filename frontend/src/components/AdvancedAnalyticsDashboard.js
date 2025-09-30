@@ -109,7 +109,23 @@ const AdvancedAnalyticsDashboard = () => {
     transition: { duration: 0.6 }
   };
 
-  if (isLoading || !analyticsData || !analyticsData.summary || !analyticsData.scanHistory || !analyticsData.vulnerabilityTypes || !analyticsData.topDomains) {
+  // Real-time updates via WebSocket
+  useEffect(() => {
+    const handleAnalyticsUpdate = () => {
+      // Refetch analytics when real-time updates occur
+      refetch();
+    };
+
+    window.addEventListener('analyticsUpdate', handleAnalyticsUpdate);
+    window.addEventListener('dashboardUpdate', handleAnalyticsUpdate);
+    
+    return () => {
+      window.removeEventListener('analyticsUpdate', handleAnalyticsUpdate);
+      window.removeEventListener('dashboardUpdate', handleAnalyticsUpdate);
+    };
+  }, [refetch]);
+
+  if (isLoading || !analyticsData || !analyticsData.summary || !analyticsData.scan_history || !analyticsData.vulnerability_types || !analyticsData.top_domains) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
