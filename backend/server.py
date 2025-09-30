@@ -475,6 +475,152 @@ async def get_stats():
     }
 
 
+@app.get("/api/tools/status")
+async def get_tools_status():
+    """Get status of available enumeration tools"""
+    try:
+        from modern_enum import ModernEnumerator
+        enumerator = ModernEnumerator()
+        tools_status = enumerator.tools
+        
+        # Add wordlist info
+        from wordlist_manager import WordlistManager
+        wordlist_manager = WordlistManager()
+        wordlists = wordlist_manager.list_wordlists()
+        
+        return {
+            "tools": tools_status,
+            "wordlists": wordlists,
+            "modern_enumeration_available": any(tools_status.values())
+        }
+    except Exception as e:
+        return {
+            "error": str(e),
+            "tools": {},
+            "wordlists": {},
+            "modern_enumeration_available": False
+        }
+
+
+@app.post("/api/wordlists/setup")
+async def setup_wordlists():
+    """Setup and download wordlists"""
+    try:
+        from wordlist_manager import setup_wordlists
+        success = setup_wordlists()
+        return {"success": success, "message": "Wordlists setup completed"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/api/wordlists/generate")
+async def generate_custom_wordlist(domain: str):
+    """Generate custom wordlist for domain"""
+    try:
+        from wordlist_manager import WordlistManager
+        manager = WordlistManager()
+        words = manager.generate_custom_wordlist(domain)
+        
+        # Save custom wordlist
+        custom_path = manager.wordlists_dir / f"custom_{domain.replace('.', '_')}.txt"
+        with open(custom_path, 'w') as f:
+            f.write('\n'.join(words))
+        
+        return {
+            "success": True,
+            "wordlist_path": str(custom_path),
+            "entries": len(words),
+            "message": f"Custom wordlist generated for {domain}"
+        }
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
+
+@app.get("/api/vulnerabilities")
+async def get_vulnerabilities(
+    severity: Optional[str] = Query(None),
+    limit: int = Query(100, ge=1, le=500)
+):
+    """Get vulnerability scan results"""
+    pipeline = [
+        {"$match": {"results.vulnerabilities": {"$exists": True, "$ne": []}}},
+        {"$unwind": "$results.vulnerabilities"},
+        {"$project": {
+            "domain": 1,
+            "scan_id": "$_id",
+            "started_at": 1,
+            "vulnerability": "$results.vulnerabilities"
+        }},
+        {"$sort": {"started_at": -1}},
+        {"$limit": limit}
+    ]
+    
+    if severity:
+        pipeline[0]["$match"]["results.vulnerabilities.severity"] = severity
+    
+    vulnerabilities = await db.scans.aggregate(pipeline).to_list(length=limit)
+    
+    return {"vulnerabilities": vulnerabilities}
+
+
+@app.get("/api/subdomains/live")
+async def get_live_subdomains(
+    domain: Optional[str] = Query(None),
+    status_code: Optional[int] = Query(None),
+    limit: int = Query(100, ge=1, le=500)
+):
+    """Get live subdomains with HTTP status"""
+    query = {"http_status": {"$exists": True, "$ne": None}}
+    
+    if domain:
+        query["domain"] = domain
+    if status_code:
+        query["http_status"] = status_code
+    
+    subdomains = await db.subdomains.find(query).sort("discovered_at", -1).limit(limit).to_list(length=limit)
+    
+    return {"live_subdomains": subdomains}
+
+
+@app.get("/api/analytics/trends")
+async def get_trends(days: int = Query(30, ge=7, le=365)):
+    """Get analytics trends for specified period"""
+    from datetime import datetime, timedelta
+    
+    start_date = datetime.now() - timedelta(days=days)
+    
+    # Daily scan activity
+    daily_scans_pipeline = [
+        {"$match": {"started_at": {"$gte": start_date}}},
+        {"$group": {
+            "_id": {
+                "year": {"$year": "$started_at"},
+                "month": {"$month": "$started_at"},
+                "day": {"$dayOfMonth": "$started_at"}
+            },
+            "count": {"$sum": 1},
+            "total_subdomains": {"$sum": "$total_subdomains"}
+        }},
+        {"$sort": {"_id": 1}}
+    ]
+    
+    daily_activity = await db.scans.aggregate(daily_scans_pipeline).to_list(length=None)
+    
+    # Status distribution
+    status_pipeline = [
+        {"$match": {"started_at": {"$gte": start_date}}},
+        {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+    ]
+    
+    status_distribution = await db.scans.aggregate(status_pipeline).to_list(length=None)
+    
+    return {
+        "daily_activity": daily_activity,
+        "status_distribution": status_distribution,
+        "period_days": days
+    }
+
+
 # ==================== SCHEDULED SCANS ====================
 
 @app.post("/api/scheduled-scan")
