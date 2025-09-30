@@ -34,22 +34,46 @@ export const WebSocketProvider = ({ children }) => {
     return `${wsProtocol}${urlParts}/ws/${clientId}`;
   }, [clientId]);
 
+  const [connectionAttempts, setConnectionAttempts] = useState(0);
+  const [lastConnectionTime, setLastConnectionTime] = useState(null);
+
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(wsUrl, {
     onOpen: () => {
       console.log('WebSocket connection opened');
-      toast.success('Real-time updates connected');
+      setConnectionAttempts(0);
+      setLastConnectionTime(new Date());
+      toast.success('Real-time updates connected', { duration: 2000 });
     },
-    onClose: () => {
-      console.log('WebSocket connection closed');
-      toast.error('Real-time updates disconnected');
+    onClose: (closeEvent) => {
+      console.log('WebSocket connection closed:', closeEvent.code, closeEvent.reason);
+      if (closeEvent.code !== 1000) { // Not a normal closure
+        toast.error('Real-time updates disconnected', { duration: 3000 });
+      }
     },
     onError: (error) => {
       console.error('WebSocket error:', error);
-      toast.error('Connection error');
+      setConnectionAttempts(prev => prev + 1);
+      if (connectionAttempts < 5) {
+        toast.error(`Connection error (attempt ${connectionAttempts + 1}/5)`, { duration: 2000 });
+      } else {
+        toast.error('Connection failed after multiple attempts', { duration: 5000 });
+      }
     },
-    shouldReconnect: () => true,
+    shouldReconnect: (closeEvent) => {
+      // Reconnect unless it was a normal closure or too many failed attempts
+      return closeEvent.code !== 1000 && connectionAttempts < 10;
+    },
     reconnectAttempts: 10,
-    reconnectInterval: 3000,
+    reconnectInterval: (attemptNumber) => {
+      // Exponential backoff with jitter
+      const baseDelay = Math.min(1000 * Math.pow(2, attemptNumber), 30000);
+      const jitter = Math.random() * 1000;
+      return baseDelay + jitter;
+    },
+    retryOnError: true,
+    onReconnectStop: (numAttempts) => {
+      toast.error(`Failed to reconnect after ${numAttempts} attempts`, { duration: 5000 });
+    }
   });
 
   // Handle incoming WebSocket messages
