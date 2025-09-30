@@ -215,6 +215,9 @@ export const WebSocketProvider = ({ children }) => {
   }, [readyState, sendJsonMessage]);
 
   const connectionStatus = React.useMemo(() => {
+    if (isReconnecting && readyState !== ReadyState.OPEN) {
+      return 'Reconnecting';
+    }
     switch (readyState) {
       case ReadyState.CONNECTING:
         return 'Connecting';
@@ -223,13 +226,13 @@ export const WebSocketProvider = ({ children }) => {
       case ReadyState.CLOSING:
         return 'Closing';
       case ReadyState.CLOSED:
-        return 'Closed';
+        return 'Disconnected';
       case ReadyState.UNINSTANTIATED:
         return 'Uninstantiated';
       default:
         return 'Unknown';
     }
-  }, [readyState]);
+  }, [readyState, isReconnecting]);
 
   const value = {
     clientId,
