@@ -92,54 +92,6 @@ const AdvancedAnalyticsDashboard = () => {
     staleTime: 60000 // 1 minute
   });
 
-  const generateMockAnalyticsData = (range) => {
-    const days = range === '24h' ? 24 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
-    const scanHistory = [];
-    const domainStats = [];
-    const vulnerabilityTrends = [];
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      
-      scanHistory.push({
-        date: date.toISOString().split('T')[0],
-        scans: Math.floor(Math.random() * 50) + 10,
-        subdomains: Math.floor(Math.random() * 500) + 100,
-        vulnerabilities: Math.floor(Math.random() * 20) + 2,
-        avgDuration: Math.floor(Math.random() * 120) + 30
-      });
-    }
-
-    const topDomains = [
-      { domain: 'example.com', scans: 45, subdomains: 234, vulnerabilities: 3 },
-      { domain: 'testsite.org', scans: 32, subdomains: 189, vulnerabilities: 7 },
-      { domain: 'myapp.io', scans: 28, subdomains: 156, vulnerabilities: 2 },
-      { domain: 'webapp.net', scans: 21, subdomains: 134, vulnerabilities: 5 },
-      { domain: 'api.service.com', scans: 18, subdomains: 98, vulnerabilities: 1 }
-    ];
-
-    const vulnerabilityTypes = [
-      { name: 'Subdomain Takeover', count: 12, severity: 'high' },
-      { name: 'SSL Issues', count: 8, severity: 'medium' },
-      { name: 'Open Ports', count: 24, severity: 'low' },
-      { name: 'DNS Misconfig', count: 6, severity: 'medium' },
-      { name: 'Exposed Services', count: 15, severity: 'high' }
-    ];
-
-    return {
-      scanHistory,
-      topDomains,
-      vulnerabilityTypes,
-      summary: {
-        totalScans: scanHistory.reduce((sum, day) => sum + day.scans, 0),
-        totalSubdomains: scanHistory.reduce((sum, day) => sum + day.subdomains, 0),
-        totalVulnerabilities: scanHistory.reduce((sum, day) => sum + day.vulnerabilities, 0),
-        avgScanDuration: Math.round(scanHistory.reduce((sum, day) => sum + day.avgDuration, 0) / scanHistory.length)
-      }
-    };
-  };
-
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#84CC16'];
 
   const chartVariants = {
