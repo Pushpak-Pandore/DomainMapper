@@ -100,7 +100,7 @@ const Layout = ({ children }) => {
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="absolute top-full left-0 w-72 bg-white shadow-xl border-r border-gray-200 z-50"
+                className="absolute top-full left-0 w-72 bg-white dark:bg-gray-800 shadow-xl border-r border-gray-200 dark:border-gray-700 z-50"
               >
                 <nav className="p-4 space-y-1">
                   {navigation.map((item) => {
@@ -114,15 +114,22 @@ const Layout = ({ children }) => {
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={`flex items-center px-3 py-3 text-base font-medium rounded-lg transition-colors ${
                           isActive
-                            ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600'
-                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-l-4 border-blue-600'
+                            : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
-                        <Icon className={`mr-4 h-6 w-6 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
+                        <Icon className={`mr-4 h-6 w-6 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'}`} />
                         {item.name}
                       </Link>
                     );
                   })}
+                  
+                  {/* Mobile Theme Toggle */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="px-3 py-2">
+                      <ThemeToggle showLabel className="w-full justify-center" />
+                    </div>
+                  </div>
                 </nav>
               </motion.div>
             </>
