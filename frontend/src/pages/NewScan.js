@@ -19,6 +19,8 @@ import toast from 'react-hot-toast';
 
 const NewScan = () => {
   const navigate = useNavigate();
+  const { addRecentDomain } = useRecentDomains();
+  
   const [formData, setFormData] = useState({
     domain: '',
     mode: 'both',
@@ -34,8 +36,48 @@ const NewScan = () => {
     probe_http: true,
     vulnerability_scan: false
   });
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [duration, setDuration] = useState(0);
+  const [scanStarted, setScanStarted] = useState(false);
+
+  // Auto-save functionality
+  const {
+    isSaving,
+    lastSaved,
+    hasUnsavedChanges,
+    loadSavedData,
+    clearSavedData,
+    hasSavedData
+  } = useAutoSave({
+    data: formData,
+    key: 'new_scan_form',
+    delay: 1000,
+    enabled: !scanStarted,
+    showToasts: false
+  });
+
+  // Load saved data on mount
+  useEffect(() => {
+    if (hasSavedData()) {
+      const saved = loadSavedData();
+      if (saved && saved.domain) {
+        setFormData(saved);
+        toast.success('📥 Restored previous scan configuration');
+      }
+    }
+  }, []);
+
+  // Timer for scan duration estimation
+  useEffect(() => {
+    if (loading) {
+      const interval = setInterval(() => {
+        setDuration(prev => prev + 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
