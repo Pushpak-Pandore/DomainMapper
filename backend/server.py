@@ -667,6 +667,46 @@ async def bulk_delete_scans(scan_ids: List[str]):
     return {"message": f"Deleted {len(scan_ids)} scans"}
 
 
+# ==================== WEBSOCKET ROUTES ====================
+
+@app.websocket("/ws/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    """WebSocket endpoint for real-time updates"""
+    await manager.connect(websocket, client_id)
+    try:
+        while True:
+            # Receive messages from client (subscription requests)
+            data = await websocket.receive_json()
+            
+            message_type = data.get("type")
+            
+            if message_type == "subscribe_scan":
+                scan_id = data.get("scan_id")
+                if scan_id:
+                    manager.subscribe_to_scan(client_id, scan_id)
+                    await manager.send_json_message({
+                        "type": "subscription_confirmed",
+                        "scan_id": scan_id
+                    }, client_id)
+            
+            elif message_type == "subscribe_dashboard":
+                manager.subscribe_to_dashboard(client_id)
+                await manager.send_json_message({
+                    "type": "dashboard_subscription_confirmed"
+                }, client_id)
+            
+            elif message_type == "ping":
+                await manager.send_json_message({
+                    "type": "pong"
+                }, client_id)
+                
+    except WebSocketDisconnect:
+        manager.disconnect(client_id)
+    except Exception as e:
+        print(f"WebSocket error for client {client_id}: {e}")
+        manager.disconnect(client_id)
+
+
 # ==================== STARTUP/SHUTDOWN ====================
 
 @app.on_event("startup")
