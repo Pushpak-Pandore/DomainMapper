@@ -343,19 +343,30 @@ const NewScan = () => {
         </div>
 
         {/* Modern Enumeration */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Modern Enumeration Tools</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Modern Enumeration Tools</h2>
+            <InfoTooltip content="Latest subdomain enumeration tools with advanced capabilities">
+              <span className="text-sm text-gray-500">Recommended</span>
+            </InfoTooltip>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="enable_modern_enum"
-                checked={formData.enable_modern_enum}
-                onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label className="ml-2 text-sm font-medium text-gray-700">Enable Modern Enumeration</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="col-span-full mb-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="enable_modern_enum"
+                  checked={formData.enable_modern_enum}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <HelpTooltip content="Enable modern enumeration tools for comprehensive subdomain discovery">
+                  <label className="ml-2 text-sm font-medium text-gray-700">
+                    🚀 Enable Modern Enumeration
+                  </label>
+                </HelpTooltip>
+              </div>
             </div>
 
             <div className="flex items-center">
@@ -364,10 +375,12 @@ const NewScan = () => {
                 name="use_subfinder"
                 checked={formData.use_subfinder}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={!formData.enable_modern_enum}
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Use Subfinder</label>
+              <HelpTooltip content="Fast passive subdomain discovery tool">
+                <label className="ml-2 text-sm font-medium text-gray-700">⚡ Use Subfinder</label>
+              </HelpTooltip>
             </div>
 
             <div className="flex items-center">
@@ -376,10 +389,12 @@ const NewScan = () => {
                 name="use_assetfinder"
                 checked={formData.use_assetfinder}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={!formData.enable_modern_enum}
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Use AssetFinder</label>
+              <HelpTooltip content="Finds domains and subdomains related to a given domain">
+                <label className="ml-2 text-sm font-medium text-gray-700">🔍 Use AssetFinder</label>
+              </HelpTooltip>
             </div>
 
             <div className="flex items-center">
@@ -388,10 +403,12 @@ const NewScan = () => {
                 name="use_amass"
                 checked={formData.use_amass}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={!formData.enable_modern_enum}
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Use Amass (Slower)</label>
+              <WarningTooltip content="Comprehensive but slow. Can significantly increase scan time (5-10 minutes extra)">
+                <label className="ml-2 text-sm font-medium text-gray-700">🐌 Use Amass (Slower)</label>
+              </WarningTooltip>
             </div>
 
             <div className="flex items-center">
@@ -400,10 +417,12 @@ const NewScan = () => {
                 name="probe_http"
                 checked={formData.probe_http}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={!formData.enable_modern_enum}
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Probe HTTP Status</label>
+              <HelpTooltip content="Check HTTP status codes for discovered subdomains">
+                <label className="ml-2 text-sm font-medium text-gray-700">🌐 Probe HTTP Status</label>
+              </HelpTooltip>
             </div>
 
             <div className="flex items-center">
@@ -412,10 +431,12 @@ const NewScan = () => {
                 name="vulnerability_scan"
                 checked={formData.vulnerability_scan}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={!formData.enable_modern_enum}
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Vulnerability Scanning</label>
+              <WarningTooltip content="Scan for common vulnerabilities. May take additional 3-5 minutes">
+                <label className="ml-2 text-sm font-medium text-gray-700">🔒 Vulnerability Scanning</label>
+              </WarningTooltip>
             </div>
           </div>
         </div>
