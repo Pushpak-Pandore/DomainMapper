@@ -329,6 +329,8 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
                 "completed_at": datetime.now()
             }}
         )
+        # Send error notification via WebSocket
+        await manager.send_scan_error(scan_id, str(e))
 
 
 # ==================== ROUTES ====================
