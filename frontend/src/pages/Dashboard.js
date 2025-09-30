@@ -84,16 +84,16 @@ const Dashboard = () => {
   return (
     <div className=\"space-y-6\">
       {/* Page Header */}
-      <div className=\"flex items-center justify-between\">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className=\"text-2xl font-bold text-gray-900\">Dashboard</h1>
-          <p className=\"text-gray-600\">Overview of your subdomain enumeration activities</p>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600">Overview of your subdomain enumeration activities</p>
         </div>
         <Link
-          to=\"/new-scan\"
-          className=\"inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors\"
+          to="/new-scan"
+          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
         >
-          <Plus className=\"h-4 w-4 mr-2\" />
+          <Plus className="h-4 w-4 mr-2" />
           New Scan
         </Link>
       </div>
