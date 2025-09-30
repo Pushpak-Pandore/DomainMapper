@@ -3,12 +3,16 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ReactQueryProvider } from './providers/ReactQueryProvider';
 import { WebSocketProvider } from './providers/WebSocketProvider';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { DashboardProvider } from './contexts/DashboardContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import NewScan from './pages/NewScan';
 import ScanDetails from './pages/ScanDetails';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
+import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 
 function App() {
   return (
