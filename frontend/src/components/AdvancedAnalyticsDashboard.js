@@ -204,28 +204,28 @@ const AdvancedAnalyticsDashboard = () => {
         {[
           {
             title: 'Total Scans',
-            value: analyticsData.summary.totalScans,
+            value: analyticsData?.summary?.totalScans || 0,
             icon: ChartBarIcon,
             color: 'blue',
             change: '+12%'
           },
           {
             title: 'Subdomains Found',
-            value: analyticsData.summary.totalSubdomains.toLocaleString(),
+            value: (analyticsData?.summary?.totalSubdomains || 0).toLocaleString(),
             icon: GlobeAltIcon,
             color: 'green',
             change: '+8%'
           },
           {
             title: 'Vulnerabilities',
-            value: analyticsData.summary.totalVulnerabilities,
+            value: analyticsData?.summary?.totalVulnerabilities || 0,
             icon: ExclamationTriangleIcon,
             color: 'red',
             change: '-3%'
           },
           {
             title: 'Avg Scan Time',
-            value: `${analyticsData.summary.avgScanDuration}s`,
+            value: `${analyticsData?.summary?.avgScanDuration || 0}s`,
             icon: ClockIcon,
             color: 'purple',
             change: '-15%'
