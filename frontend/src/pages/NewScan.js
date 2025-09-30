@@ -329,7 +329,7 @@ const NewScan = () => {
             {/* Estimated Duration */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <ClockIcon className="h-4 w-4 inline mr-1" />
+                <Clock className="h-4 w-4 inline mr-1" />
                 Estimated Duration
               </label>
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
