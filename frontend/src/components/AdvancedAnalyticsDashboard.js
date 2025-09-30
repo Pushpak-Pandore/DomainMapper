@@ -381,17 +381,19 @@ const AdvancedAnalyticsDashboard = () => {
           className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700"
         >
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Subdomain Discovery
+            Subdomain Discovery & Performance
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={analyticsData.scanHistory}>
+            <ComposedChart data={analyticsData?.scan_history ?? []}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
               <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
-              <YAxis className="text-gray-600 dark:text-gray-400" />
+              <YAxis yAxisId="left" className="text-gray-600 dark:text-gray-400" />
+              <YAxis yAxisId="right" orientation="right" className="text-gray-600 dark:text-gray-400" />
               <Tooltip />
               <Legend />
-              <Bar dataKey="subdomains" fill="#10B981" name="Subdomains Found" />
-              <Line type="monotone" dataKey="vulnerabilities" stroke="#EF4444" name="Vulnerabilities" />
+              <Bar yAxisId="left" dataKey="subdomains" fill="#10B981" name="Subdomains Found" />
+              <Line yAxisId="right" type="monotone" dataKey="vulnerabilities" stroke="#EF4444" strokeWidth={2} name="Vulnerabilities" />
+              <Line yAxisId="right" type="monotone" dataKey="avg_duration" stroke="#8B5CF6" strokeWidth={2} name="Avg Duration (s)" />
             </ComposedChart>
           </ResponsiveContainer>
         </motion.div>
