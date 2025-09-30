@@ -361,7 +361,7 @@ const AdvancedAnalyticsDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {analyticsData.topDomains.map((domain, index) => (
+                {(analyticsData?.topDomains ?? []).map((domain, index) => (
                   <tr key={domain.domain} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
                     <td className="py-3 text-sm text-gray-900 dark:text-white font-medium">
                       {domain.domain}
