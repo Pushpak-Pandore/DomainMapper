@@ -50,15 +50,15 @@ const ScanDetails = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className=\"h-6 w-6 text-green-500\" />;
+        return <CheckCircle className="h-6 w-6 text-green-500" />;
       case 'running':
-        return <Clock className=\"h-6 w-6 text-blue-500 animate-spin\" />;
+        return <Clock className="h-6 w-6 text-blue-500 animate-spin" />;
       case 'failed':
-        return <XCircle className=\"h-6 w-6 text-red-500\" />;
+        return <XCircle className="h-6 w-6 text-red-500" />;
       case 'queued':
-        return <Clock className=\"h-6 w-6 text-yellow-500\" />;
+        return <Clock className="h-6 w-6 text-yellow-500" />;
       default:
-        return <AlertTriangle className=\"h-6 w-6 text-gray-500\" />;
+        return <AlertTriangle className="h-6 w-6 text-gray-500" />;
     }
   };
 
