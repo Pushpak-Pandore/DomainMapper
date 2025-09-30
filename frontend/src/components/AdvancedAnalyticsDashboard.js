@@ -100,7 +100,7 @@ const AdvancedAnalyticsDashboard = () => {
     transition: { duration: 0.6 }
   };
 
-  if (isLoading || !analyticsData) {
+  if (isLoading || !analyticsData || !analyticsData.summary || !analyticsData.scanHistory || !analyticsData.vulnerabilityTypes || !analyticsData.topDomains) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
