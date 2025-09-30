@@ -17,11 +17,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from passive_enum import passive_enum
 from active_enum import active_enum
+from modern_enum import modern_enum, ModernEnumerator
 from change_detect import detect_changes
 from tech_fingerprint import fingerprint_subdomains
 from threat_enrich import enrich_subdomains
 from takeover_detect import scan_takeover
 from report_generator import generate_reports
+from wordlist_manager import WordlistManager
 from utils import deduplicate_subdomains, sanitize_domain
 
 # MongoDB connection
