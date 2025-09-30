@@ -1,16 +1,18 @@
 """
-FastAPI Backend for DomainMapper Pro
+FastAPI Backend for DomainMapper Pro with Real-time WebSocket Support
 """
 import os
 import sys
 from datetime import datetime
-from typing import List, Optional
-from fastapi import FastAPI, BackgroundTasks, HTTPException, Query
+from typing import List, Optional, Dict, Any
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 import motor.motor_asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import asyncio
+import uuid
 
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
