@@ -356,7 +356,7 @@ const AdvancedAnalyticsDashboard = () => {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={analyticsData.vulnerabilityTypes}
+                data={analyticsData?.vulnerability_types ?? []}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -365,7 +365,7 @@ const AdvancedAnalyticsDashboard = () => {
                 fill="#8884d8"
                 dataKey="count"
               >
-                {(analyticsData?.vulnerabilityTypes ?? []).map((entry, index) => (
+                {(analyticsData?.vulnerability_types ?? []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
