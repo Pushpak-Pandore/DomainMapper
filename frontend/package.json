@@ -52,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.90.2",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.0"
