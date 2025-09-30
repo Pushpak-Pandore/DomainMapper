@@ -417,6 +417,228 @@ async def get_stats():
     }
 
 
+@app.get("/api/scan/{scan_id}/report/{format}")
+async def download_report(scan_id: str, format: str):
+    """Download scan report in specified format"""
+    from fastapi.responses import StreamingResponse
+    import json
+    import io
+    
+    # Validate format
+    if format not in ["html", "json", "csv"]:
+        raise HTTPException(status_code=400, detail="Invalid format. Use html, json, or csv")
+    
+    # Get scan data
+    scan = await db.scans.find_one({"_id": scan_id})
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    
+    # Get subdomains
+    subdomains_cursor = db.subdomains.find({"scan_id": scan_id})
+    subdomains = await subdomains_cursor.to_list(length=None)
+    
+    if format == "json":
+        report_data = {
+            "scan_info": {
+                "scan_id": scan["_id"],
+                "domain": scan["domain"],
+                "status": scan["status"],
+                "started_at": scan["started_at"].isoformat() if scan.get("started_at") else None,
+                "completed_at": scan["completed_at"].isoformat() if scan.get("completed_at") else None,
+                "total_subdomains": scan.get("total_subdomains", 0)
+            },
+            "results": scan.get("results", {}),
+            "subdomains": subdomains
+        }
+        
+        content = json.dumps(report_data, indent=2, default=str)
+        return StreamingResponse(
+            io.StringIO(content),
+            media_type="application/json",
+            headers={"Content-Disposition": f"attachment; filename={scan['domain']}_report.json"}
+        )
+    
+    elif format == "csv":
+        import csv
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write headers
+        writer.writerow([
+            "Subdomain", "IP", "Source", "HTTP Status", "Threat Score", 
+            "Takeover Vulnerable", "Live", "Title", "Server", "Technologies"
+        ])
+        
+        # Write data
+        for subdomain in subdomains:
+            technologies = ""
+            if subdomain.get('tech'):
+                technologies = ", ".join(subdomain['tech'])
+                
+            writer.writerow([
+                subdomain.get('subdomain', ''),
+                subdomain.get('ip', ''),
+                subdomain.get('source', ''),
+                subdomain.get('http_status', ''),
+                subdomain.get('threat_score', ''),
+                subdomain.get('takeover_vulnerable', False),
+                bool(subdomain.get('url')),
+                subdomain.get('title', ''),
+                subdomain.get('server', ''),
+                technologies
+            ])
+        
+        content = output.getvalue()
+        return StreamingResponse(
+            io.StringIO(content),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={scan['domain']}_report.csv"}
+        )
+    
+    elif format == "html":
+        # Generate HTML report
+        html_content = generate_html_report(scan, subdomains)
+        return StreamingResponse(
+            io.StringIO(html_content),
+            media_type="text/html",
+            headers={"Content-Disposition": f"attachment; filename={scan['domain']}_report.html"}
+        )
+
+
+def generate_html_report(scan, subdomains):
+    """Generate HTML report"""
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>DomainMapper Pro Report - {scan['domain']}</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }}
+            .container {{ max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
+            .header {{ text-align: center; margin-bottom: 40px; }}
+            .logo {{ font-size: 24px; font-weight: bold; color: #2563eb; margin-bottom: 10px; }}
+            .stats {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }}
+            .stat-card {{ background: #f8fafc; padding: 20px; border-radius: 6px; text-align: center; border-left: 4px solid #3b82f6; }}
+            .stat-number {{ font-size: 28px; font-weight: bold; color: #1f2937; }}
+            .stat-label {{ color: #6b7280; font-size: 14px; margin-top: 5px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
+            th, td {{ padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }}
+            th {{ background-color: #f9fafb; font-weight: bold; }}
+            .live {{ background-color: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-size: 12px; }}
+            .vulnerable {{ background-color: #fecaca; color: #dc2626; padding: 2px 6px; border-radius: 4px; font-size: 12px; }}
+            .footer {{ text-align: center; margin-top: 40px; color: #6b7280; font-size: 14px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <div class="logo">🗺️ DomainMapper Pro</div>
+                <h1>Subdomain Enumeration Report</h1>
+                <h2>{scan['domain']}</h2>
+                <p>Generated on {scan.get('completed_at', scan['started_at']).strftime('%Y-%m-%d %H:%M:%S') if scan.get('completed_at') or scan.get('started_at') else 'N/A'}</p>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{len(subdomains)}</div>
+                    <div class="stat-label">Total Subdomains</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{sum(1 for s in subdomains if s.get('url'))}</div>
+                    <div class="stat-label">Live Subdomains</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{sum(1 for s in subdomains if s.get('takeover_vulnerable'))}</div>
+                    <div class="stat-label">Vulnerable</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{scan['status'].title()}</div>
+                    <div class="stat-label">Scan Status</div>
+                </div>
+            </div>
+
+            <h3>Discovered Subdomains</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subdomain</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>IP Address</th>
+                        <th>Title</th>
+                        <th>Server</th>
+                        <th>Flags</th>
+                    </tr>
+                </thead>
+                <tbody>
+    """
+    
+    for subdomain in subdomains:
+        flags = []
+        if subdomain.get('url'):
+            flags.append('<span class="live">LIVE</span>')
+        if subdomain.get('takeover_vulnerable'):
+            flags.append('<span class="vulnerable">VULNERABLE</span>')
+        
+        flags_html = ' '.join(flags)
+        
+        html += f"""
+                    <tr>
+                        <td>{subdomain.get('subdomain', '')}</td>
+                        <td>{subdomain.get('source', '')}</td>
+                        <td>{subdomain.get('http_status', '')}</td>
+                        <td>{subdomain.get('ip', '')}</td>
+                        <td>{subdomain.get('title', '')}</td>
+                        <td>{subdomain.get('server', '')}</td>
+                        <td>{flags_html}</td>
+                    </tr>
+        """
+    
+    html += f"""
+                </tbody>
+            </table>
+            
+            <div class="footer">
+                <p>Report generated by DomainMapper Pro v2.0</p>
+                <p>For more information, visit our documentation</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return html
+
+
+@app.delete("/api/scan/{scan_id}")
+async def delete_scan(scan_id: str):
+    """Delete a scan and its associated data"""
+    # Delete scan record
+    scan_result = await db.scans.delete_one({"_id": scan_id})
+    if scan_result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Scan not found")
+    
+    # Delete associated subdomains
+    await db.subdomains.delete_many({"scan_id": scan_id})
+    
+    return {"message": "Scan deleted successfully"}
+
+
+@app.post("/api/scans/bulk-delete")
+async def bulk_delete_scans(scan_ids: List[str]):
+    """Delete multiple scans"""
+    # Delete scan records
+    await db.scans.delete_many({"_id": {"$in": scan_ids}})
+    
+    # Delete associated subdomains
+    await db.subdomains.delete_many({"scan_id": {"$in": scan_ids}})
+    
+    return {"message": f"Deleted {len(scan_ids)} scans"}
+
+
 # ==================== STARTUP/SHUTDOWN ====================
 
 @app.on_event("startup")
