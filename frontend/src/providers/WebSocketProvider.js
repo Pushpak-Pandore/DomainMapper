@@ -234,7 +234,8 @@ export const WebSocketProvider = ({ children }) => {
     }
   }, [readyState, isReconnecting]);
 
-  const value = {
+  // Memoize context value to prevent unnecessary re-renders
+  const value = React.useMemo(() => ({
     clientId,
     connectionStatus,
     isConnected: readyState === ReadyState.OPEN,
@@ -244,7 +245,17 @@ export const WebSocketProvider = ({ children }) => {
     scanUpdates,
     setScanUpdates,
     sendJsonMessage
-  };
+  }), [
+    clientId,
+    connectionStatus,
+    readyState,
+    isReconnecting,
+    subscribeToScan,
+    subscribeToDashboard,
+    scanUpdates,
+    setScanUpdates,
+    sendJsonMessage
+  ]);
 
   return (
     <WebSocketContext.Provider value={value}>
