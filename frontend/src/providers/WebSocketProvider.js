@@ -238,6 +238,7 @@ export const WebSocketProvider = ({ children }) => {
     clientId,
     connectionStatus,
     isConnected: readyState === ReadyState.OPEN,
+    isReconnecting,
     subscribeToScan,
     subscribeToDashboard,
     scanUpdates,
