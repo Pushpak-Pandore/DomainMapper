@@ -184,12 +184,12 @@ const NewScan = () => {
           <div className="flex items-center space-x-2">
             {isSaving ? (
               <div className="flex items-center text-blue-600">
-                <RefreshCwIcon className="h-4 w-4 animate-spin mr-1" />
+                <RotateCcw className="h-4 w-4 animate-spin mr-1" />
                 <span className="text-sm">Saving...</span>
               </div>
             ) : lastSaved ? (
               <div className="flex items-center text-green-600">
-                <SaveIcon className="h-4 w-4 mr-1" />
+                <Save className="h-4 w-4 mr-1" />
                 <span className="text-sm">Auto-saved {Math.floor((Date.now() - lastSaved) / 1000)}s ago</span>
               </div>
             ) : null}
