@@ -148,8 +148,36 @@ class ConnectionManager:
             "type": "dashboard_update",
             "event": "scan_completed",
             "scan_id": scan_id,
+            "total_subdomains": total_subdomains,
             "timestamp": datetime.now().isoformat()
         })
+        
+        # Send analytics update
+        await self.send_analytics_update("scan_completed", {
+            "scan_id": scan_id,
+            "total_subdomains": total_subdomains,
+            "vulnerable_count": len([s for s in scan_data.get('takeover_vulnerable', {}).values() if s])
+        })
+
+    async def send_analytics_update(self, event_type: str, data: Dict[str, Any]):
+        """Send real-time analytics updates"""
+        analytics_data = {
+            "type": "analytics_update",
+            "event": event_type,
+            "data": data,
+            "timestamp": datetime.now().isoformat()
+        }
+        await self.broadcast_to_dashboard(analytics_data)
+
+    async def send_connection_status(self, client_id: str, status: str):
+        """Send connection status updates"""
+        data = {
+            "type": "connection_status",
+            "status": status,
+            "client_id": client_id,
+            "timestamp": datetime.now().isoformat()
+        }
+        await self.send_json_message(data, client_id)
 
     async def send_scan_error(self, scan_id: str, error: str):
         """Send scan error notification"""
