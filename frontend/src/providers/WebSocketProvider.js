@@ -18,6 +18,7 @@ export const WebSocketProvider = ({ children }) => {
   const [scanSubscriptions, setScanSubscriptions] = useState(new Set());
   const [isDashboardSubscribed, setIsDashboardSubscribed] = useState(false);
   const [scanUpdates, setScanUpdates] = useState({});
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   // Determine WebSocket URL
   const wsUrl = React.useMemo(() => {
