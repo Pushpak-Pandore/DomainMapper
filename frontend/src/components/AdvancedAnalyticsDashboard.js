@@ -312,34 +312,35 @@ const AdvancedAnalyticsDashboard = () => {
             return null;
           }
           return (
-          <motion.div
-            key={stat.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {stat.title}
-                </p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                  {stat.value}
-                </p>
-                <div className={`flex items-center mt-2 text-sm ${
-                  stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
-                  {stat.change}
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border border-gray-200 dark:border-gray-700"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {stat.title}
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                    {stat.value}
+                  </p>
+                  <div className={`flex items-center mt-2 text-sm ${
+                    stat.change.startsWith('+') ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
+                    {stat.change}
+                  </div>
+                </div>
+                <div className={`p-3 rounded-full bg-${stat.color}-100 dark:bg-${stat.color}-900/20`}>
+                  <IconComponent className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`} />
                 </div>
               </div>
-              <div className={`p-3 rounded-full bg-${stat.color}-100 dark:bg-${stat.color}-900`}>
-                <IconComponent className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`} />
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        }).filter(Boolean)}
       </div>
 
       {/* Charts Grid */}
