@@ -219,41 +219,6 @@ const AdvancedAnalyticsDashboard = () => {
     );
   }
 
-  // Enhanced data validation and safe defaults
-  const safeAnalyticsData = React.useMemo(() => {
-    if (!analyticsData) {
-      return {
-        summary: {
-          totalScans: 0,
-          totalSubdomains: 0,
-          totalVulnerabilities: 0,
-          avgScanDuration: 0,
-          completionRate: 0,
-          vulnerabilityRate: 0
-        },
-        scan_history: [],
-        vulnerability_types: [],
-        top_domains: [],
-        generated_at: new Date().toISOString()
-      };
-    }
-
-    return {
-      summary: {
-        totalScans: analyticsData?.summary?.totalScans || 0,
-        totalSubdomains: analyticsData?.summary?.totalSubdomains || 0,
-        totalVulnerabilities: analyticsData?.summary?.totalVulnerabilities || 0,
-        avgScanDuration: analyticsData?.summary?.avgScanDuration || 0,
-        completionRate: analyticsData?.summary?.completionRate || 0,
-        vulnerabilityRate: analyticsData?.summary?.vulnerabilityRate || 0
-      },
-      scan_history: Array.isArray(analyticsData?.scan_history) ? analyticsData.scan_history : [],
-      vulnerability_types: Array.isArray(analyticsData?.vulnerability_types) ? analyticsData.vulnerability_types : [],
-      top_domains: Array.isArray(analyticsData?.top_domains) ? analyticsData.top_domains : [],
-      generated_at: analyticsData?.generated_at || new Date().toISOString()
-    };
-  }, [analyticsData]);
-
   return (
     <div className="space-y-6">
       {/* Controls */}
