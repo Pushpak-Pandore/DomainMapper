@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, 
   Search, 
@@ -8,40 +9,55 @@ import {
   XCircle, 
   AlertTriangle,
   Eye,
-  Download
+  Download,
+  WifiIcon,
+  ExclamationTriangleIcon
 } from 'lucide-react';
 import api from '../services/api';
+import { useWebSocketContext } from '../providers/WebSocketProvider';
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    total_scans: 0,
-    active_scans: 0,
-    total_subdomains: 0,
-    vulnerable_subdomains: 0
+  const queryClient = useQueryClient();
+  const { connectionStatus, isConnected, subscribeToDashboard } = useWebSocketContext();
+
+  // React Query for stats
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
+    queryKey: ['stats'],
+    queryFn: async () => {
+      const response = await api.get('/api/stats');
+      return response.data;
+    },
+    staleTime: 30000, // 30 seconds
   });
-  const [recentScans, setRecentScans] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // React Query for recent scans
+  const { data: scansData, isLoading: scansLoading, error: scansError } = useQuery({
+    queryKey: ['scans', { limit: 10 }],
+    queryFn: async () => {
+      const response = await api.get('/api/scans?limit=10');
+      return response.data;
+    },
+    staleTime: 10000, // 10 seconds
+  });
+
+  // Subscribe to dashboard updates
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const [statsResponse, scansResponse] = await Promise.all([
-        api.get('/api/stats'),
-        api.get('/api/scans?limit=10')
-      ]);
-      
-      setStats(statsResponse.data);
-      setRecentScans(scansResponse.data.scans);
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
+    if (isConnected) {
+      subscribeToDashboard();
     }
-  };
+  }, [isConnected, subscribeToDashboard]);
+
+  // Listen for dashboard updates
+  useEffect(() => {
+    const handleDashboardUpdate = () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries(['stats']);
+      queryClient.invalidateQueries(['scans']);
+    };
+
+    window.addEventListener('dashboardUpdate', handleDashboardUpdate);
+    return () => window.removeEventListener('dashboardUpdate', handleDashboardUpdate);
+  }, [queryClient]);
 
   const downloadReport = async (scanId, domain) => {
     try {
@@ -92,7 +108,7 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
+  if (statsLoading || scansLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -100,69 +116,100 @@ const Dashboard = () => {
     );
   }
 
+  if (statsError || scansError) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="flex">
+          <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">
+              Error loading dashboard data
+            </h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>Please check your connection and try refreshing the page.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const recentScans = scansData?.scans || [];
+
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* Connection Status */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-600">Overview of your subdomain enumeration activities</p>
         </div>
-        <Link
-          to="/new-scan"
-          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Scan
-        </Link>
+        <div className="flex items-center space-x-4">
+          {/* Real-time Connection Status */}
+          <div className="flex items-center space-x-2">
+            <WifiIcon className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
+            <span className={`text-xs font-medium ${isConnected ? 'text-green-700' : 'text-red-700'}`}>
+              {connectionStatus}
+            </span>
+          </div>
+          <Link
+            to="/new-scan"
+            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            New Scan
+          </Link>
+        </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards with Real-time Updates */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 transition-all hover:shadow-md">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Search className="h-8 w-8 text-blue-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Scans</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total_scans}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.total_scans || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 transition-all hover:shadow-md">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <Clock className="h-8 w-8 text-yellow-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Active Scans</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.active_scans}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.active_scans || 0}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 transition-all hover:shadow-md">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Subdomains</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total_subdomains.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {stats?.total_subdomains?.toLocaleString() || 0}
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow p-6 transition-all hover:shadow-md">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <AlertTriangle className="h-8 w-8 text-red-500" />
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Vulnerable</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.vulnerable_subdomains}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats?.vulnerable_subdomains || 0}</p>
             </div>
           </div>
         </div>
