@@ -290,7 +290,7 @@ const AdvancedAnalyticsDashboard = () => {
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             {chartType === 'area' && (
-              <AreaChart data={analyticsData?.scan_history ?? []}>
+              <AreaChart data={safeAnalyticsData.scan_history}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
@@ -324,7 +324,7 @@ const AdvancedAnalyticsDashboard = () => {
             )}
             
             {chartType === 'bar' && (
-              <BarChart data={analyticsData?.scan_history ?? []}>
+              <BarChart data={safeAnalyticsData.scan_history}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
@@ -336,7 +336,7 @@ const AdvancedAnalyticsDashboard = () => {
             )}
             
             {chartType === 'line' && (
-              <LineChart data={analyticsData?.scan_history ?? []}>
+              <LineChart data={safeAnalyticsData.scan_history}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
                 <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
                 <YAxis className="text-gray-600 dark:text-gray-400" />
