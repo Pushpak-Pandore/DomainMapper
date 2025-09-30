@@ -21,7 +21,7 @@ import { motion } from 'framer-motion';
 import {
   ChartBarIcon,
   ClockIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   ShieldCheckIcon,
   GlobeAltIcon,
   ExclamationTriangleIcon
