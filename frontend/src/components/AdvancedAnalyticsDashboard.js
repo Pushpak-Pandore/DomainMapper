@@ -310,7 +310,7 @@ const AdvancedAnalyticsDashboard = () => {
                 fill="#8884d8"
                 dataKey="count"
               >
-                {analyticsData.vulnerabilityTypes.map((entry, index) => (
+                {(analyticsData?.vulnerabilityTypes ?? []).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
