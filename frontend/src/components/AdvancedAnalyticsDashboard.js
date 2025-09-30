@@ -125,7 +125,8 @@ const AdvancedAnalyticsDashboard = () => {
     };
   }, [refetch]);
 
-  if (isLoading || !analyticsData || !analyticsData.summary || !Array.isArray(analyticsData.scan_history) || !Array.isArray(analyticsData.vulnerability_types) || !Array.isArray(analyticsData.top_domains)) {
+  // Enhanced loading and error states
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -133,7 +134,7 @@ const AdvancedAnalyticsDashboard = () => {
             Advanced Analytics
           </h2>
           <div className="text-sm text-gray-500">
-            {isLoading ? 'Loading analytics...' : 'Initializing dashboard...'}
+            Loading analytics...
           </div>
         </div>
         <div className="animate-pulse">
@@ -146,6 +147,37 @@ const AdvancedAnalyticsDashboard = () => {
             {[...Array(4)].map((_, i) => (
               <div key={i} className="bg-gray-200 dark:bg-gray-700 h-80 rounded-lg"></div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !analyticsData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Advanced Analytics
+          </h2>
+        </div>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div className="flex items-center space-x-3">
+            <ExclamationTriangleIcon className="h-6 w-6 text-red-500" />
+            <div>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                Failed to Load Analytics
+              </h3>
+              <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                Unable to fetch analytics data. Please check your connection and try again.
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="mt-3 bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-800 dark:text-red-200 px-3 py-1 rounded text-sm"
+              >
+                Retry
+              </button>
+            </div>
           </div>
         </div>
       </div>
