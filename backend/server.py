@@ -55,13 +55,19 @@ scheduler = AsyncIOScheduler()
 
 class ScanRequest(BaseModel):
     domain: str
-    mode: str = Field(default="both", pattern="^(passive|active|both)$")
+    mode: str = Field(default="both", pattern="^(passive|active|both|modern)$")
     wordlist: Optional[str] = None
     threads: int = Field(default=50, ge=1, le=200)
     enable_fingerprint: bool = False
     enable_threat: bool = False
     enable_takeover: bool = False
     enable_changes: bool = False
+    enable_modern_enum: bool = True
+    use_subfinder: bool = True
+    use_assetfinder: bool = True
+    use_amass: bool = False
+    probe_http: bool = True
+    vulnerability_scan: bool = False
     sources: Optional[List[str]] = None
 
 
