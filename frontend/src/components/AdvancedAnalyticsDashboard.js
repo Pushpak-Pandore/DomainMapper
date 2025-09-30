@@ -418,7 +418,7 @@ const AdvancedAnalyticsDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {(analyticsData?.topDomains ?? []).map((domain, index) => (
+                {(analyticsData?.top_domains ?? []).map((domain, index) => (
                   <tr key={domain.domain} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
                     <td className="py-3 text-sm text-gray-900 dark:text-white font-medium">
                       {domain.domain}
@@ -427,18 +427,25 @@ const AdvancedAnalyticsDashboard = () => {
                       {domain.scans}
                     </td>
                     <td className="py-3 text-sm text-gray-600 dark:text-gray-300">
-                      {domain.subdomains}
+                      {domain.subdomains?.toLocaleString() || 0}
                     </td>
                     <td className="py-3 text-sm">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        domain.vulnerabilities > 5 
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          : domain.vulnerabilities > 0 
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      }`}>
-                        {domain.vulnerabilities}
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          domain.vulnerabilities > 5 
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            : domain.vulnerabilities > 0 
+                            ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        }`}>
+                          {domain.vulnerabilities}
+                        </span>
+                        {domain.success_rate && (
+                          <span className="text-xs text-gray-500">
+                            {domain.success_rate}% success
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
