@@ -8,8 +8,8 @@ import {
   Search,
   Shield,
   Activity,
-  Bars3,
-  XMarkIcon
+  Menu,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWebSocketContext } from '../providers/WebSocketProvider';
