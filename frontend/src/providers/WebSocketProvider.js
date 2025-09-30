@@ -22,8 +22,16 @@ export const WebSocketProvider = ({ children }) => {
   // Determine WebSocket URL
   const wsUrl = React.useMemo(() => {
     const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
-    const wsUrl = backendUrl.replace('http://', 'ws://').replace('https://', 'wss://');
-    return `${wsUrl}/ws/${clientId}`;
+    let wsProtocol = 'ws://';
+    
+    // Use secure WebSocket if the page is served over HTTPS
+    if (window.location.protocol === 'https:' || backendUrl.startsWith('https://')) {
+      wsProtocol = 'wss://';
+    }
+    
+    // Extract host from backend URL
+    const urlParts = backendUrl.replace(/^https?:\/\//, '');
+    return `${wsProtocol}${urlParts}/ws/${clientId}`;
   }, [clientId]);
 
   const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(wsUrl, {
