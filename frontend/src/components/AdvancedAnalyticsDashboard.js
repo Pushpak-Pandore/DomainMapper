@@ -174,9 +174,9 @@ const AdvancedAnalyticsDashboard = () => {
             <span className="text-xs text-gray-600 dark:text-gray-400">
               {isConnected ? 'Real-time updates active' : `Connection ${connectionStatus.toLowerCase()}`}
             </span>
-            {analyticsData?.generated_at && (
+            {safeAnalyticsData.generated_at && (
               <span className="text-xs text-gray-500 dark:text-gray-400">
-                • Updated {new Date(analyticsData.generated_at).toLocaleTimeString()}
+                • Updated {new Date(safeAnalyticsData.generated_at).toLocaleTimeString()}
               </span>
             )}
           </div>
