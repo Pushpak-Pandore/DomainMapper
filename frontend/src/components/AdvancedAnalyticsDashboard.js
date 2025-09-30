@@ -128,6 +128,14 @@ const AdvancedAnalyticsDashboard = () => {
   if (isLoading || !analyticsData || !analyticsData.summary || !Array.isArray(analyticsData.scan_history) || !Array.isArray(analyticsData.vulnerability_types) || !Array.isArray(analyticsData.top_domains)) {
     return (
       <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Advanced Analytics
+          </h2>
+          <div className="text-sm text-gray-500">
+            {isLoading ? 'Loading analytics...' : 'Initializing dashboard...'}
+          </div>
+        </div>
         <div className="animate-pulse">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[...Array(4)].map((_, i) => (
@@ -143,6 +151,15 @@ const AdvancedAnalyticsDashboard = () => {
       </div>
     );
   }
+
+  // Validate data structure before rendering
+  const safeAnalyticsData = {
+    summary: analyticsData?.summary || {},
+    scan_history: Array.isArray(analyticsData?.scan_history) ? analyticsData.scan_history : [],
+    vulnerability_types: Array.isArray(analyticsData?.vulnerability_types) ? analyticsData.vulnerability_types : [],
+    top_domains: Array.isArray(analyticsData?.top_domains) ? analyticsData.top_domains : [],
+    generated_at: analyticsData?.generated_at
+  };
 
   return (
     <div className="space-y-6">
