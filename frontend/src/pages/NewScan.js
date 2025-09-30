@@ -87,6 +87,60 @@ const NewScan = () => {
     }));
   };
 
+  const handleDomainSelect = (domain) => {
+    setFormData(prev => ({ ...prev, domain }));
+    toast.success(`🎯 Selected domain: ${domain}`);
+  };
+
+  const copyDomain = async (domain) => {
+    try {
+      await navigator.clipboard.writeText(domain);
+      toast.success('📋 Domain copied to clipboard!');
+    } catch (err) {
+      toast.error('Failed to copy domain');
+    }
+  };
+
+  const formatDuration = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return minutes > 0 ? `${minutes}:${remainingSeconds.toString().padStart(2, '0')}` : `${seconds}s`;
+  };
+
+  const getEstimatedDuration = () => {
+    let baseTime = 30; // Base 30 seconds
+    
+    if (formData.mode === 'both') baseTime += 60;
+    if (formData.enable_modern_enum) baseTime += 120;
+    if (formData.use_amass) baseTime += 300; // Amass is slow
+    if (formData.enable_fingerprint) baseTime += 60;
+    if (formData.enable_threat) baseTime += 45;
+    if (formData.enable_takeover) baseTime += 30;
+    if (formData.vulnerability_scan) baseTime += 180;
+    
+    return Math.ceil(baseTime + (formData.threads / 10)); // More threads = slightly more time for coordination
+  };
+
+  const clearForm = () => {
+    setFormData({
+      domain: '',
+      mode: 'both',
+      threads: 50,
+      enable_fingerprint: false,
+      enable_threat: false,
+      enable_takeover: false,
+      enable_changes: false,
+      enable_modern_enum: true,
+      use_subfinder: true,
+      use_assetfinder: true,
+      use_amass: false,
+      probe_http: true,
+      vulnerability_scan: false
+    });
+    clearSavedData();
+    toast.success('🗑️ Form cleared');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
