@@ -42,6 +42,7 @@ export const WebSocketProvider = ({ children }) => {
     onOpen: () => {
       console.log('WebSocket connection opened');
       setConnectionAttempts(0);
+      setIsReconnecting(false);
       setLastConnectionTime(new Date());
       toast.success('Real-time updates connected', { duration: 2000 });
     },
