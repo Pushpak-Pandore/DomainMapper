@@ -401,7 +401,7 @@ const AdvancedAnalyticsDashboard = () => {
             Subdomain Discovery & Performance
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart data={analyticsData?.scan_history ?? []}>
+            <ComposedChart data={safeAnalyticsData.scan_history}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
               <XAxis dataKey="date" className="text-gray-600 dark:text-gray-400" />
               <YAxis yAxisId="left" className="text-gray-600 dark:text-gray-400" />
