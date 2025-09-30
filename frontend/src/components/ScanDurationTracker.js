@@ -5,7 +5,7 @@ import {
   PlayIcon,
   PauseIcon,
   StopIcon,
-  TrendingUpIcon,
+  ArrowTrendingUpIcon,
   CheckCircleIcon,
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
