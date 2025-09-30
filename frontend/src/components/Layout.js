@@ -32,15 +32,15 @@ const Layout = ({ children }) => {
   const currentPage = navigation.find(item => item.href === location.pathname);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Mobile Header */}
-      <header className="lg:hidden bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <header className="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="px-4 sm:px-6">
           <div className="flex h-16 justify-between items-center">
             <div className="flex items-center">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="p-2 rounded-md text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
               >
                 <span className="sr-only">Open main menu</span>
                 <Menu className="h-6 w-6" />
@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
               <div className="ml-3 flex items-center">
                 <Shield className="h-7 w-7 text-blue-600" />
                 <div className="ml-2">
-                  <h1 className="text-lg font-bold text-gray-900">DomainMapper</h1>
+                  <h1 className="text-lg font-bold text-gray-900 dark:text-white">DomainMapper</h1>
                 </div>
               </div>
             </div>
@@ -59,11 +59,14 @@ const Layout = ({ children }) => {
               <div className="flex items-center space-x-1">
                 <Activity className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
                 <span className={`hidden sm:inline text-xs font-medium ${
-                  isConnected ? 'text-green-700' : 'text-red-700'
+                  isConnected ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'
                 }`}>
                   {connectionStatus}
                 </span>
               </div>
+              
+              {/* Theme Toggle */}
+              <ThemeToggle className="hidden sm:flex" />
               
               {/* Quick actions */}
               <Link
