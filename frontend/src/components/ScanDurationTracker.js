@@ -261,7 +261,7 @@ export const AdvancedScanDurationTracker = ({
                 
                 {comparison && (
                   <div className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700 rounded">
-                    <TrendingUpIcon className={`h-4 w-4 ${comparison.color}`} />
+                    <ArrowTrendingUpIcon className={`h-4 w-4 ${comparison.color}`} />
                     <span className={`text-xs font-medium ${comparison.color}`}>
                       {comparison.text}
                     </span>
