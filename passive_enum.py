@@ -1,171 +1,180 @@
-# # passive_enum.py
-# import requests
-# import json
-# import re
-
-# def fetch_crtsh(domain):
-#     """Fetch subdomains from crt.sh"""
-#     url = f"https://crt.sh/?q=%25.{domain}&output=json"
-#     try:
-#         r = requests.get(url, timeout=10)
-#         if r.status_code != 200:
-#             return []
-#         data = r.json()
-#         subdomains = set()
-#         for entry in data:
-#             name = entry.get("name_value", "")
-#             for sub in name.split("\n"):
-#                 if domain in sub:
-#                     subdomains.add(sub.strip())
-#         return list(subdomains)
-#     except Exception as e:
-#         print(f"[!] crt.sh error: {e}")
-#         return []
-
-# def fetch_alienvault(domain):
-#     """Fetch subdomains from AlienVault OTX"""
-#     url = f"https://otx.alienvault.com/api/v1/indicators/domain/{domain}/passive_dns"
-#     try:
-#         r = requests.get(url, timeout=10)
-#         if r.status_code != 200:
-#             return []
-#         data = r.json()
-#         subdomains = set()
-#         for record in data.get("passive_dns", []):
-#             hostname = record.get("hostname", "")
-#             if domain in hostname:
-#                 subdomains.add(hostname)
-#         return list(subdomains)
-#     except Exception as e:
-#         print(f"[!] AlienVault OTX error: {e}")
-#         return []
-
-# def fetch_threatcrowd(domain):
-#     """Fetch subdomains from ThreatCrowd"""
-#     url = f"https://www.threatcrowd.org/searchApi/v2/domain/report/?domain={domain}"
-#     try:
-#         r = requests.get(url, timeout=10)
-#         data = r.json()
-#         return data.get("subdomains", [])
-#     except Exception as e:
-#         print(f"[!] ThreatCrowd error: {e}")
-#         return []
-
-# def fetch_wayback(domain):
-#     """Fetch subdomains from Wayback Machine"""
-#     url = f"http://web.archive.org/cdx/search/cdx?url=*.{domain}/*&output=json&fl=original&collapse=urlkey"
-#     try:
-#         r = requests.get(url, timeout=10)
-#         results = r.json()
-#         subdomains = set()
-#         for entry in results[1:]:
-#             url_match = re.findall(r"https?://([^/]+)/?", entry[0])
-#             if url_match:
-#                 subdomains.add(url_match[0])
-#         return list(subdomains)
-#     except Exception as e:
-#         print(f"[!] Wayback Machine error: {e}")
-#         return []
-
-# def passive_enum(domain):
-#     """Run all passive methods and return unique subdomains"""
-#     all_subs = set()
-
-#     print(f"[*] Gathering subdomains for: {domain}")
-
-#     sources = [fetch_crtsh, fetch_alienvault, fetch_threatcrowd, fetch_wayback]
-#     for source in sources:
-#         subs = source(domain)
-#         print(f"[+] {source.__name__}: {len(subs)} found")
-#         all_subs.update(subs)
-
-#     return sorted(all_subs)
-
-# if __name__ == "__main__":
-#     target = input("Enter domain: ").strip()
-#     results = passive_enum(target)
-#     print(f"\n[✓] Total unique subdomains found: {len(results)}")
-#     for sub in results:
-#         print(sub)
-
-#------------------------2----------------------------#
-
-
-
-
-
-
-
-
+"""
+Passive subdomain enumeration from multiple sources
+"""
 import requests
 import re
+from typing import List, Set
 from stream_output import stream_print
+from config import REQUEST_TIMEOUT
 
-def fetch_crtsh(domain):
-    """Fetch subdomains from crt.sh"""
+
+def fetch_crtsh(domain: str) -> Set[str]:
+    """Fetch subdomains from crt.sh (Certificate Transparency Logs)"""
     subs = set()
     try:
         url = f"https://crt.sh/?q=%25.{domain}&output=json"
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            for entry in r.json():
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            data = response.json()
+            for entry in data:
                 name_value = entry.get("name_value", "")
-                found = re.findall(rf"[a-zA-Z0-9.-]*\.{domain}", name_value)
-                subs.update(found)
+                # Extract all subdomains from certificate
+                for line in name_value.split('\n'):
+                    line = line.strip().replace('*.', '')
+                    if domain in line and line.endswith(domain):
+                        subs.add(line.lower())
+        stream_print(f"[+] crt.sh: {len(subs)} found", "success")
     except Exception as e:
         stream_print(f"[!] crt.sh error: {e}", "error")
     return subs
 
-def fetch_alienvault(domain):
+
+def fetch_alienvault(domain: str) -> Set[str]:
     """Fetch subdomains from AlienVault OTX"""
     subs = set()
     try:
         url = f"https://otx.alienvault.com/api/v1/indicators/domain/{domain}/passive_dns"
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            data = r.json()
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            data = response.json()
             for record in data.get("passive_dns", []):
                 hostname = record.get("hostname", "")
                 if hostname.endswith(domain):
-                    subs.add(hostname)
+                    subs.add(hostname.lower())
+        stream_print(f"[+] AlienVault: {len(subs)} found", "success")
     except Exception as e:
         stream_print(f"[!] AlienVault error: {e}", "error")
     return subs
 
-def fetch_threatcrowd(domain):
+
+def fetch_threatcrowd(domain: str) -> Set[str]:
     """Fetch subdomains from ThreatCrowd"""
     subs = set()
     try:
         url = f"https://threatcrowd.org/searchApi/v2/domain/report/?domain={domain}"
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            data = r.json()
-            subs.update([s for s in data.get("subdomains", []) if s.endswith(domain)])
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            data = response.json()
+            subdomains = data.get("subdomains", [])
+            for sub in subdomains:
+                if sub.endswith(domain):
+                    subs.add(sub.lower())
+        stream_print(f"[+] ThreatCrowd: {len(subs)} found", "success")
     except Exception as e:
         stream_print(f"[!] ThreatCrowd error: {e}", "error")
     return subs
 
-def fetch_wayback(domain):
+
+def fetch_wayback(domain: str) -> Set[str]:
     """Fetch subdomains from Wayback Machine"""
     subs = set()
     try:
         url = f"http://web.archive.org/cdx/search/cdx?url=*.{domain}/*&output=text&fl=original&collapse=urlkey"
-        r = requests.get(url, timeout=10)
-        if r.status_code == 200:
-            found = re.findall(rf"https?://([a-zA-Z0-9.-]*\.{domain})", r.text)
-            subs.update(found)
+        response = requests.get(url, timeout=REQUEST_TIMEOUT * 2)
+        if response.status_code == 200:
+            # Extract subdomains from URLs
+            pattern = rf"https?://([a-zA-Z0-9.-]*\.{re.escape(domain)})"
+            matches = re.findall(pattern, response.text)
+            for match in matches:
+                subs.add(match.lower())
+        stream_print(f"[+] Wayback: {len(subs)} found", "success")
     except Exception as e:
         stream_print(f"[!] Wayback error: {e}", "error")
     return subs
 
-def passive_enum(domain):
-    """Run all passive methods and return unique subdomains"""
+
+def fetch_hackertarget(domain: str) -> Set[str]:
+    """Fetch subdomains from HackerTarget"""
+    subs = set()
+    try:
+        url = f"https://api.hackertarget.com/hostsearch/?q={domain}"
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            lines = response.text.strip().split('\n')
+            for line in lines:
+                if ',' in line:
+                    subdomain = line.split(',')[0].strip()
+                    if subdomain.endswith(domain):
+                        subs.add(subdomain.lower())
+        stream_print(f"[+] HackerTarget: {len(subs)} found", "success")
+    except Exception as e:
+        stream_print(f"[!] HackerTarget error: {e}", "error")
+    return subs
+
+
+def fetch_rapiddns(domain: str) -> Set[str]:
+    """Fetch subdomains from RapidDNS"""
+    subs = set()
+    try:
+        url = f"https://rapiddns.io/subdomain/{domain}?full=1"
+        response = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if response.status_code == 200:
+            pattern = rf'([a-zA-Z0-9]([a-zA-Z0-9\-]{{0,61}}[a-zA-Z0-9])?\.)+{re.escape(domain)}'
+            matches = re.findall(pattern, response.text)
+            for match in matches:
+                if isinstance(match, tuple):
+                    subdomain = match[0] + domain
+                else:
+                    subdomain = match
+                if subdomain.endswith(domain):
+                    subs.add(subdomain.lower())
+        stream_print(f"[+] RapidDNS: {len(subs)} found", "success")
+    except Exception as e:
+        stream_print(f"[!] RapidDNS error: {e}", "error")
+    return subs
+
+
+def passive_enum(domain: str, sources: List[str] = None) -> List[str]:
+    """
+    Run passive enumeration from multiple sources
+    
+    Args:
+        domain: Target domain
+        sources: List of sources to use (default: all)
+    
+    Returns:
+        Sorted list of unique subdomains
+    """
+    all_sources = {
+        'crtsh': fetch_crtsh,
+        'alienvault': fetch_alienvault,
+        'threatcrowd': fetch_threatcrowd,
+        'wayback': fetch_wayback,
+        'hackertarget': fetch_hackertarget,
+        'rapiddns': fetch_rapiddns,
+    }
+    
+    # Use all sources if none specified
+    if sources is None:
+        sources = list(all_sources.keys())
+    
+    stream_print(f"[*] Starting passive enumeration for {domain}", "info")
+    stream_print(f"[*] Using sources: {', '.join(sources)}", "info")
+    
     all_subs = set()
-    sources = [fetch_crtsh, fetch_alienvault, fetch_threatcrowd, fetch_wayback]
+    
+    for source_name in sources:
+        if source_name in all_sources:
+            try:
+                subs = all_sources[source_name](domain)
+                all_subs.update(subs)
+            except Exception as e:
+                stream_print(f"[!] Error with {source_name}: {e}", "error")
+    
+    result = sorted(all_subs)
+    stream_print(f"[✓] Passive enumeration complete: {len(result)} unique subdomains", "success")
+    return result
 
-    for source in sources:
-        subs = source(domain)
-        stream_print(f"[+] {source.__name__}: {len(subs)} found", "success")
-        all_subs.update(subs)
 
-    return sorted(all_subs)
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python passive_enum.py <domain>")
+        sys.exit(1)
+    
+    target = sys.argv[1]
+    results = passive_enum(target)
+    
+    print(f"\n[✓] Total: {len(results)} subdomains")
+    for sub in results:
+        print(f"  - {sub}")
