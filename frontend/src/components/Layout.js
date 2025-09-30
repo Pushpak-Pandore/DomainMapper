@@ -7,8 +7,13 @@ import {
   Settings, 
   Search,
   Shield,
-  Activity 
+  Activity,
+  Bars3,
+  XMarkIcon
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useWebSocketContext } from '../providers/WebSocketProvider';
+import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 
 const Layout = ({ children }) => {
   const location = useLocation();
