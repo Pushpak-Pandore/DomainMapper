@@ -17,6 +17,11 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { connectionStatus, isConnected } = useWebSocketContext();
+  
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts();
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
@@ -24,6 +29,8 @@ const Layout = ({ children }) => {
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
+
+  const currentPage = navigation.find(item => item.href === location.pathname);
 
   return (
     <div className="min-h-screen bg-gray-50">
