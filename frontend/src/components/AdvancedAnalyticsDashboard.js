@@ -148,9 +148,22 @@ const AdvancedAnalyticsDashboard = () => {
     <div className="space-y-6">
       {/* Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Advanced Analytics
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Advanced Analytics
+          </h2>
+          <div className="flex items-center space-x-2 mt-1">
+            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-xs text-gray-600 dark:text-gray-400">
+              {isConnected ? 'Real-time updates active' : `Connection ${connectionStatus.toLowerCase()}`}
+            </span>
+            {analyticsData?.generated_at && (
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                • Updated {new Date(analyticsData.generated_at).toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+        </div>
         
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center space-x-2">
