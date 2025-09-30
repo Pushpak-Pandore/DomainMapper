@@ -125,7 +125,7 @@ const AdvancedAnalyticsDashboard = () => {
     };
   }, [refetch]);
 
-  if (isLoading || !analyticsData || !analyticsData.summary || !analyticsData.scan_history || !analyticsData.vulnerability_types || !analyticsData.top_domains) {
+  if (isLoading || !analyticsData || !analyticsData.summary || !Array.isArray(analyticsData.scan_history) || !Array.isArray(analyticsData.vulnerability_types) || !Array.isArray(analyticsData.top_domains)) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
