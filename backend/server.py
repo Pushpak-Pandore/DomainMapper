@@ -446,6 +446,90 @@ async def get_stats():
     }
 
 
+@app.get("/api/analytics")
+async def get_analytics(time_range: str = Query("7d", regex="^(24h|7d|30d|90d)$")):
+    """Get comprehensive analytics data"""
+    try:
+        analytics_data = await analytics_service.get_comprehensive_analytics(time_range)
+        return analytics_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Analytics error: {str(e)}")
+
+
+@app.get("/api/analytics/real-time")
+async def get_real_time_analytics():
+    """Get real-time analytics for dashboard updates"""
+    try:
+        # Get current running scans
+        running_scans = await db.scans.find({"status": "running"}).to_list(length=None)
+        
+        # Get recent completions (last hour)
+        recent_completions = await db.scans.count_documents({
+            "status": "completed",
+            "completed_at": {"$gte": datetime.now() - timedelta(hours=1)}
+        })
+        
+        # Get latest vulnerability discoveries
+        latest_vulnerabilities = await db.subdomains.find(
+            {
+                "takeover_vulnerable": True,
+                "discovered_at": {"$gte": datetime.now() - timedelta(hours=24)}
+            },
+            {"subdomain": 1, "domain": 1, "discovered_at": 1}
+        ).sort("discovered_at", -1).limit(5).to_list(length=None)
+        
+        return {
+            "running_scans": len(running_scans),
+            "recent_completions": recent_completions,
+            "active_scan_details": [
+                {
+                    "scan_id": scan["_id"],
+                    "domain": scan["domain"],
+                    "progress": scan.get("progress", 0),
+                    "started_at": scan["started_at"].isoformat()
+                }
+                for scan in running_scans
+            ],
+            "latest_vulnerabilities": [
+                {
+                    "subdomain": vuln["subdomain"],
+                    "domain": vuln["domain"],
+                    "discovered_at": vuln["discovered_at"].isoformat()
+                }
+                for vuln in latest_vulnerabilities
+            ],
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Real-time analytics error: {str(e)}")
+
+
+@app.get("/api/analytics/performance")
+async def get_performance_analytics(time_range: str = Query("7d")):
+    """Get detailed performance analytics"""
+    try:
+        performance_data = await analytics_service.get_performance_metrics(
+            datetime.now() - timedelta(days=7 if time_range == "7d" else 30),
+            datetime.now()
+        )
+        return performance_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Performance analytics error: {str(e)}")
+
+
+@app.get("/api/analytics/vulnerabilities")
+async def get_vulnerability_analytics(time_range: str = Query("7d")):
+    """Get detailed vulnerability analytics"""
+    try:
+        vulnerability_data = await analytics_service.get_vulnerability_analytics(
+            datetime.now() - timedelta(days=7 if time_range == "7d" else 30),
+            datetime.now()
+        )
+        return vulnerability_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Vulnerability analytics error: {str(e)}")
+
+
 @app.get("/api/scan/{scan_id}/report/{format}")
 async def download_report(scan_id: str, format: str):
     """Download scan report in specified format"""
