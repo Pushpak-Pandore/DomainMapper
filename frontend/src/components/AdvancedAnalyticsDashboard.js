@@ -279,33 +279,39 @@ const AdvancedAnalyticsDashboard = () => {
         {[
           {
             title: 'Total Scans',
-            value: analyticsData?.summary?.totalScans || 0,
+            value: safeAnalyticsData?.summary?.totalScans || 0,
             icon: ChartBarIcon,
             color: 'blue',
             change: '+12%'
           },
           {
             title: 'Subdomains Found',
-            value: (analyticsData?.summary?.totalSubdomains || 0).toLocaleString(),
+            value: (safeAnalyticsData?.summary?.totalSubdomains || 0).toLocaleString(),
             icon: GlobeAltIcon,
             color: 'green',
             change: '+8%'
           },
           {
             title: 'Vulnerabilities',
-            value: analyticsData?.summary?.totalVulnerabilities || 0,
+            value: safeAnalyticsData?.summary?.totalVulnerabilities || 0,
             icon: ExclamationTriangleIcon,
             color: 'red',
             change: '-3%'
           },
           {
             title: 'Avg Scan Time',
-            value: `${analyticsData?.summary?.avgScanDuration || 0}s`,
+            value: `${safeAnalyticsData?.summary?.avgScanDuration || 0}s`,
             icon: ClockIcon,
             color: 'purple',
             change: '-15%'
           }
-        ].map((stat, index) => (
+        ].map((stat, index) => {
+          const IconComponent = stat.icon;
+          if (!IconComponent) {
+            console.warn(`Missing icon component for stat: ${stat.title}`);
+            return null;
+          }
+          return (
           <motion.div
             key={stat.title}
             initial={{ opacity: 0, y: 20 }}
