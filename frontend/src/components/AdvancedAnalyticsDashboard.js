@@ -335,7 +335,7 @@ const AdvancedAnalyticsDashboard = () => {
                 </div>
               </div>
               <div className={`p-3 rounded-full bg-${stat.color}-100 dark:bg-${stat.color}-900`}>
-                <stat.icon className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`} />
+                <IconComponent className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`} />
               </div>
             </div>
           </motion.div>
