@@ -10,8 +10,7 @@ import {
   AlertTriangle,
   Eye,
   Download,
-  WifiIcon,
-  ExclamationTriangleIcon
+  Wifi,
 } from 'lucide-react';
 import api from '../services/api';
 import { useWebSocketContext } from '../providers/WebSocketProvider';
