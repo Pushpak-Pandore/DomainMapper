@@ -442,8 +442,13 @@ const NewScan = () => {
         </div>
 
         {/* Advanced Features */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Advanced Features</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Advanced Security Features</h2>
+            <InfoTooltip content="Additional security analysis features for comprehensive assessment">
+              <span className="text-sm text-gray-500">Optional</span>
+            </InfoTooltip>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center">
@@ -452,9 +457,11 @@ const NewScan = () => {
                 name="enable_fingerprint"
                 checked={formData.enable_fingerprint}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Technology Fingerprinting</label>
+              <HelpTooltip content="Identify technologies, frameworks, and services running on discovered subdomains">
+                <label className="ml-2 text-sm font-medium text-gray-700">🔧 Technology Fingerprinting</label>
+              </HelpTooltip>
             </div>
 
             <div className="flex items-center">
@@ -463,9 +470,11 @@ const NewScan = () => {
                 name="enable_threat"
                 checked={formData.enable_threat}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Threat Intelligence</label>
+              <HelpTooltip content="Check discovered subdomains against threat intelligence databases">
+                <label className="ml-2 text-sm font-medium text-gray-700">🛡️ Threat Intelligence</label>
+              </HelpTooltip>
             </div>
 
             <div className="flex items-center">
@@ -474,9 +483,11 @@ const NewScan = () => {
                 name="enable_takeover"
                 checked={formData.enable_takeover}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Subdomain Takeover Detection</label>
+              <WarningTooltip content="Detect subdomains vulnerable to takeover attacks. Critical security check">
+                <label className="ml-2 text-sm font-medium text-gray-700">⚠️ Subdomain Takeover Detection</label>
+              </WarningTooltip>
             </div>
 
             <div className="flex items-center">
@@ -485,34 +496,51 @@ const NewScan = () => {
                 name="enable_changes"
                 checked={formData.enable_changes}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label className="ml-2 text-sm font-medium text-gray-700">Change Detection</label>
+              <HelpTooltip content="Compare results with previous scans to detect changes">
+                <label className="ml-2 text-sm font-medium text-gray-700">📊 Change Detection</label>
+              </HelpTooltip>
             </div>
           </div>
         </div>
 
         {/* Submit */}
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading || !formData.domain}
-            className="inline-flex items-center px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-400 transition-colors"
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+          <div className="text-sm text-gray-500">
+            {hasUnsavedChanges && !scanStarted ? (
+              <span className="text-amber-600">⚡ Unsaved changes (auto-saving...)</span>
             ) : (
-              <Play className="h-4 w-4 mr-2" />
+              <span>Form is {scanStarted ? 'ready for scan' : 'auto-saved'}</span>
             )}
-            Start Scan
-          </button>
+          </div>
+          
+          <div className="flex space-x-4">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !formData.domain}
+              className="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Scanning...
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start Scan
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>
