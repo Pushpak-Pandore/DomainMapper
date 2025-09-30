@@ -57,7 +57,7 @@ const KeyboardShortcutsHelp = () => {
         className="fixed bottom-6 right-6 z-50 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg transition-colors"
         title="Show keyboard shortcuts (Shift + ?)"
       >
-        <KeyboardIcon className="h-5 w-5" />
+        <CommandLineIcon className="h-5 w-5" />
       </motion.button>
 
       <AnimatePresence>
