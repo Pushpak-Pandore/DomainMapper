@@ -145,12 +145,24 @@ const NewScan = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setScanStarted(true);
+    setDuration(0);
 
     try {
       const response = await api.post('/api/scan', formData);
+      
+      // Add to recent domains
+      addRecentDomain(formData.domain);
+      
+      // Clear auto-saved data since scan started
+      clearSavedData();
+      
+      toast.success(`🚀 Scan started for ${formData.domain}`);
       navigate(`/scan/${response.data.scan_id}`);
     } catch (err) {
+      setScanStarted(false);
       setError(err.response?.data?.detail || 'Failed to start scan');
+      toast.error('Failed to start scan');
     } finally {
       setLoading(false);
     }
