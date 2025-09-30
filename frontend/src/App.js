@@ -12,11 +12,8 @@ import ScanDetails from './pages/ScanDetails';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
-import useKeyboardShortcuts from './hooks/useKeyboardShortcuts';
 
 function App() {
-  // Initialize keyboard shortcuts globally
-  useKeyboardShortcuts();
 
   return (
     <ThemeProvider>
