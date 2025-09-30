@@ -27,6 +27,7 @@ from takeover_detect import scan_takeover
 from report_generator import generate_reports
 from wordlist_manager import WordlistManager
 from utils import deduplicate_subdomains, sanitize_domain
+from websocket_manager import manager
 
 # MongoDB connection
 MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
