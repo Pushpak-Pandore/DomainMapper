@@ -244,55 +244,100 @@ const NewScan = () => {
         )}
 
         {/* Basic Configuration */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Configuration</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Basic Configuration</h2>
+            <InfoTooltip content="Essential settings to configure your subdomain enumeration scan">
+              <span className="text-sm text-gray-500">Required settings</span>
+            </InfoTooltip>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Target Domain *
-              </label>
-              <input
-                type="text"
-                name="domain"
-                value={formData.domain}
-                onChange={handleInputChange}
-                placeholder="example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required
-              />
+              <HelpTooltip content="Enter the target domain without protocol (e.g., example.com, not https://example.com)">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Target Domain *
+                </label>
+              </HelpTooltip>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="domain"
+                  value={formData.domain}
+                  onChange={handleInputChange}
+                  placeholder="example.com"
+                  className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                />
+                {formData.domain && (
+                  <button
+                    type="button"
+                    onClick={() => copyDomain(formData.domain)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    title="Copy domain"
+                  >
+                    <DocumentDuplicateIcon className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Enumeration Mode
-              </label>
+              <HelpTooltip content="Choose the enumeration strategy based on your needs:\n• Both: Comprehensive (Passive + Active)\n• Passive: Stealthy, uses public sources\n• Active: Faster, may leave traces\n• Modern: Latest tools with advanced features">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Enumeration Mode
+                </label>
+              </HelpTooltip>
               <select
                 name="mode"
                 value={formData.mode}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               >
-                <option value="both">Both (Passive + Active)</option>
-                <option value="passive">Passive Only</option>
-                <option value="active">Active Only</option>
-                <option value="modern">Modern Comprehensive</option>
+                <option value="both">🔍 Both (Passive + Active)</option>
+                <option value="passive">🕵️ Passive Only</option>
+                <option value="active">⚡ Active Only</option>
+                <option value="modern">🚀 Modern Comprehensive</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Threads
-              </label>
+              <HelpTooltip content="Number of concurrent threads for scanning. More threads = faster but more resource intensive. Recommended: 50-100">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Threads ({formData.threads})
+                </label>
+              </HelpTooltip>
               <input
-                type="number"
+                type="range"
                 name="threads"
                 value={formData.threads}
                 onChange={handleInputChange}
                 min="1"
                 max="200"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>1</span>
+                <span>50</span>
+                <span>100</span>
+                <span>200</span>
+              </div>
+            </div>
+
+            {/* Estimated Duration */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <ClockIcon className="h-4 w-4 inline mr-1" />
+                Estimated Duration
+              </label>
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-lg font-semibold text-blue-900">
+                  ~{Math.ceil(getEstimatedDuration() / 60)} minutes
+                </div>
+                <div className="text-sm text-blue-600 mt-1">
+                  Based on selected features
+                </div>
+              </div>
             </div>
           </div>
         </div>
