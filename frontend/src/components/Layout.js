@@ -5,7 +5,6 @@ import {
   Plus, 
   BarChart3, 
   Settings, 
-  Search,
   Shield,
   Activity,
   Menu,
@@ -13,15 +12,15 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWebSocketContext } from '../providers/WebSocketProvider';
-import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from './ThemeToggle';
+import Breadcrumb from './Breadcrumb';
 
 const Layout = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { connectionStatus, isConnected } = useWebSocketContext();
-  
-  // Enable keyboard shortcuts
-  useKeyboardShortcuts();
+  const { theme } = useTheme();
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
