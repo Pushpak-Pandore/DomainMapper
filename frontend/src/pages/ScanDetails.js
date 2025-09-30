@@ -13,7 +13,8 @@ import {
   Globe,
   Server,
   Shield,
-  Target
+  Target,
+  Search
 } from 'lucide-react';
 import { scanService } from '../services/api';
 import { format, formatDistanceToNow } from 'date-fns';
