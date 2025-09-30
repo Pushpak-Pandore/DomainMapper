@@ -146,7 +146,7 @@ const Dashboard = () => {
         <div className="flex items-center space-x-4">
           {/* Real-time Connection Status */}
           <div className="flex items-center space-x-2">
-            <WifiIcon className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
+            <Wifi className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
             <span className={`text-xs font-medium ${isConnected ? 'text-green-700' : 'text-red-700'}`}>
               {connectionStatus}
             </span>
