@@ -47,9 +47,15 @@ export const WebSocketProvider = ({ children }) => {
     },
     onClose: (closeEvent) => {
       console.log('WebSocket connection closed:', closeEvent.code, closeEvent.reason);
+      setIsReconnecting(true);
       if (closeEvent.code !== 1000) { // Not a normal closure
         toast.error('Real-time updates disconnected', { duration: 3000 });
       }
+    },
+    onReconnecting: () => {
+      console.log('WebSocket attempting to reconnect...');
+      setIsReconnecting(true);
+      toast.loading('Reconnecting...', { duration: 2000 });
     },
     onError: (error) => {
       console.error('WebSocket error:', error);
