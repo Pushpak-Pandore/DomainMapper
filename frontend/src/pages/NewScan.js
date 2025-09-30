@@ -4,11 +4,13 @@ import {
   Play, 
   Settings as SettingsIcon, 
   AlertCircle,
-  DocumentDuplicateIcon,
-  ClockIcon,
-  SaveIcon,
-  RefreshCwIcon
+  Clock,
+  Save,
+  RotateCcw
 } from 'lucide-react';
+import { 
+  DocumentDuplicateIcon
+} from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import api from '../services/api';
 import useAutoSave from '../hooks/useAutoSave';
