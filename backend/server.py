@@ -290,6 +290,9 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
             }}
         )
         
+        # Send scan completion notification via WebSocket
+        await manager.send_scan_completed(scan_id, len(all_subdomains), scan_data)
+        
         # Save subdomains to collection
         for subdomain in all_subdomains:
             subdomain_doc = {
