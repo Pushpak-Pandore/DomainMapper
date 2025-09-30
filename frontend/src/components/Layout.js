@@ -44,7 +44,7 @@ const Layout = ({ children }) => {
                 className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
               >
                 <span className="sr-only">Open main menu</span>
-                <Bars3 className="h-6 w-6" />
+                <Menu className="h-6 w-6" />
               </button>
               
               <div className="ml-3 flex items-center">
