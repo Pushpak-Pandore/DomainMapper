@@ -115,14 +115,48 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
             'ips': {},
             'sources': {},
             'passive_count': 0,
-            'active_count': 0
+            'active_count': 0,
+            'modern_count': 0
         }
         
-        # Passive enumeration
-        if request.mode in ["passive", "both"]:
+        # Modern comprehensive enumeration (if enabled)
+        if request.enable_modern_enum and request.mode in ["modern", "both"]:
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 10, "current_step": "passive enumeration"}}
+                {"$set": {"progress": 10, "current_step": "modern enumeration"}}
+            )
+            
+            try:
+                enumerator = ModernEnumerator()
+                modern_results = enumerator.comprehensive_enum(
+                    domain=domain,
+                    use_subfinder=request.use_subfinder,
+                    use_assetfinder=request.use_assetfinder,
+                    use_amass=request.use_amass,
+                    probe_http=request.probe_http,
+                    vulnerability_scan=request.vulnerability_scan,
+                    threads=request.threads
+                )
+                
+                modern_subdomains = modern_results['subdomains']
+                all_subdomains.extend(modern_subdomains)
+                scan_data['modern_count'] = len(modern_subdomains)
+                scan_data['live_subdomains'] = modern_results['live_subdomains']
+                scan_data['vulnerabilities'] = modern_results['vulnerabilities']
+                scan_data['tool_results'] = modern_results.get('tool_results', {})
+                
+                for sub in modern_subdomains:
+                    scan_data['sources'][sub] = 'modern'
+                    
+            except Exception as e:
+                # Log error but continue with traditional methods
+                print(f"Modern enumeration error: {e}")
+        
+        # Passive enumeration (traditional)
+        if request.mode in ["passive", "both"] and not request.enable_modern_enum:
+            await db.scans.update_one(
+                {"_id": scan_id},
+                {"$set": {"progress": 20, "current_step": "passive enumeration"}}
             )
             
             passive_results = passive_enum(domain, request.sources)
@@ -132,12 +166,17 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
             for sub in passive_results:
                 scan_data['sources'][sub] = 'passive'
         
-        # Active enumeration
-        if request.mode in ["active", "both"] and request.wordlist:
+        # Active enumeration (traditional)
+        if request.mode in ["active", "both"] and request.wordlist and not request.enable_modern_enum:
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 30, "current_step": "active enumeration"}}
+                {"$set": {"progress": 40, "current_step": "active enumeration"}}
             )
+            
+            # Get best wordlist if not specified
+            if not request.wordlist:
+                wordlist_manager = WordlistManager()
+                request.wordlist = wordlist_manager.get_best_wordlist(domain)
             
             active_results = active_enum(domain, request.wordlist, threads=request.threads)
             all_subdomains.extend(active_results)
@@ -154,7 +193,7 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
         await db.scans.update_one(
             {"_id": scan_id},
             {"$set": {
-                "progress": 50,
+                "progress": 60,
                 "total_subdomains": len(all_subdomains),
                 "current_step": "analysis"
             }}
@@ -165,11 +204,11 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
             change_data = detect_changes(domain, all_subdomains)
             scan_data['changes'] = change_data
         
-        # Technology fingerprinting
-        if request.enable_fingerprint and all_subdomains:
+        # Technology fingerprinting (only if not done by modern enum)
+        if request.enable_fingerprint and all_subdomains and not scan_data.get('live_subdomains'):
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 60, "current_step": "fingerprinting"}}
+                {"$set": {"progress": 70, "current_step": "fingerprinting"}}
             )
             
             to_fingerprint = all_subdomains[:50]
@@ -185,11 +224,11 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
                     'cms': result.get('cms'),
                 }
         
-        # Threat intelligence
-        if request.enable_threat and all_subdomains:
+        # Threat intelligence (only if not done by modern enum)
+        if request.enable_threat and all_subdomains and not scan_data.get('vulnerabilities'):
             await db.scans.update_one(
                 {"_id": scan_id},
-                {"$set": {"progress": 75, "current_step": "threat intelligence"}}
+                {"$set": {"progress": 80, "current_step": "threat intelligence"}}
             )
             
             to_enrich = all_subdomains[:30]
@@ -230,7 +269,7 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
         
         # Save subdomains to collection
         for subdomain in all_subdomains:
-            await db.subdomains.insert_one({
+            subdomain_doc = {
                 "scan_id": scan_id,
                 "domain": domain,
                 "subdomain": subdomain,
@@ -240,7 +279,20 @@ async def run_scan_task(scan_id: str, request: ScanRequest):
                 "threat_score": scan_data.get('threat_scores', {}).get(subdomain),
                 "takeover_vulnerable": scan_data.get('takeover_vulnerable', {}).get(subdomain),
                 "discovered_at": datetime.now()
-            })
+            }
+            
+            # Add live subdomain data if available
+            if scan_data.get('live_subdomains', {}).get(subdomain):
+                live_data = scan_data['live_subdomains'][subdomain]
+                subdomain_doc.update({
+                    'url': live_data.get('url'),
+                    'title': live_data.get('title'),
+                    'server': live_data.get('server'),
+                    'tech': live_data.get('tech', []),
+                    'content_length': live_data.get('content_length')
+                })
+            
+            await db.subdomains.insert_one(subdomain_doc)
     
     except Exception as e:
         await db.scans.update_one(
