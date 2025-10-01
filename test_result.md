@@ -215,10 +215,7 @@
   run_ui: true
 
 ## test_plan:
-  current_focus:
-    - "Dashboard functionality verification"
-    - "Subdomain enumeration job creation and monitoring"
-    - "Analytics data visualization"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
