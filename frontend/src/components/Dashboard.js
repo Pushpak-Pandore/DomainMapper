@@ -69,7 +69,7 @@ const Dashboard = () => {
 
   const { data: jobs, isLoading: jobsLoading } = useQuery({
     queryKey: ['jobs'],
-    queryFn: apiService.getJobs,
+    queryFn: () => apiService.getJobs(),
     refetchInterval: 3000
   });
 
